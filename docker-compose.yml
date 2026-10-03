@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: seamline-db
+    environment:
+      POSTGRES_DB: seamline
+      POSTGRES_USER: seamline
+      POSTGRES_PASSWORD: seamline
+    ports:
+      - "5432:5432"
+    volumes:
+      - seamline-data:/var/lib/postgresql/data
+volumes:
+  seamline-data:

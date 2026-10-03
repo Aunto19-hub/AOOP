@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seamline — A digital twin for the sewing floor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf3e4;
+  --paper:#fffaf0;
+  --ink:#3c2a1c;
+  --slate:#6b5643;
+  --mute:#9c8a76;
+  --hair:#e3d4b8;
+
+  --teal:#7fada0;
+  --teal-d:#5a8a7d;
+  --mustard:#e0a347;
+  --mustard-d:#c07f2b;
+  --blue:#7ea3c4;
+  --blue-d:#557ca0;
+  --terracotta:#d17858;
+  --terracotta-d:#af5638;
+
+  --run:var(--teal-d);
+  --block:var(--terracotta-d);
+  --r:18px;
+  --sh:0 10px 0 rgba(60,42,28,.06), 0 18px 40px rgba(60,42,28,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--cream);color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,.disp{font-family:Archivo,Inter,sans-serif;letter-spacing:-.015em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+.stitch{height:0;border-top:2.5px dashed var(--hair)}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:18px 30px;background:rgba(250,243,228,0);transition:background .25s,box-shadow .25s,padding .25s;}
+.nav.solid{background:rgba(250,243,228,.92);backdrop-filter:blur(8px);box-shadow:0 1px 0 var(--hair);padding:13px 30px}
+.brand{display:flex;align-items:center;gap:9px}
+.spool-mark{width:24px;height:24px;flex:none}
+.brand b{font-size:18px;font-weight:800;color:var(--ink)}
+.nav-cta{font-size:13px;font-weight:700;padding:10px 19px;border-radius:30px;background:var(--ink);color:var(--cream);
+  text-decoration:none;transition:transform .15s,background .15s;box-shadow:var(--sh)}
+.nav-cta:hover{background:var(--terracotta-d);transform:translateY(-1px)}
+
+/* ---------- shared act scaffolding ---------- */
+.act{position:relative}
+.stage{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
+.stage-inner{width:100%;max-width:1220px;margin:0 auto;padding:0 6vw;
+  display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.stage-inner.reverse{grid-template-columns:1.15fr 1fr}
+.stage-inner.reverse .art{order:2}
+.stage-inner.reverse .txt{order:1}
+
+.kicker{font-family:"IBM Plex Mono";font-size:12px;color:var(--mustard-d);letter-spacing:.06em;
+  display:flex;align-items:center;gap:9px;margin-bottom:14px;font-weight:600}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--mustard-d)}
+.act h2{font-size:clamp(28px,3.6vw,44px);font-weight:800;line-height:1.08;max-width:14ch;color:var(--ink)}
+.act .lede{font-size:15px;color:var(--slate);max-width:42ch;margin-top:15px;line-height:1.65}
+.act .cap{margin-top:18px;font-family:"IBM Plex Mono";font-size:12.5px;color:var(--terracotta-d);font-weight:600}
+.art{position:relative}
+.art svg{width:100%;height:auto;overflow:visible}
+.art img{width:100%;max-width:380px;height:auto;display:block;margin:0 auto;position:relative;z-index:1;
+  filter:drop-shadow(0 14px 22px rgba(60,42,28,.16))}
+.art-deco{position:absolute;top:0;left:0;z-index:0}
+
+/* ---------- rail ---------- */
+.rail{position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:10px;
+  opacity:0;transition:opacity .3s}
+.rail.show{opacity:1}
+.rail i{width:6px;height:6px;border-radius:50%;background:var(--hair);transition:.2s;display:block}
+.rail i.on{background:var(--terracotta-d);transform:scale(1.6)}
+@media(max-width:860px){.rail{display:none}}
+
+/* ---------- hero ---------- */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:120px 6vw 60px;position:relative}
+.hero-art{width:100%;max-width:760px;margin:0 auto;filter:drop-shadow(0 18px 30px rgba(60,42,28,.16))}
+.hero h1{font-size:clamp(46px,8vw,92px);font-weight:900;line-height:.94;letter-spacing:-.02em;color:var(--ink);
+  opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.9,.25,1) .1s forwards;}
+.hero p{font-size:clamp(15px,1.5vw,18px);color:var(--slate);max-width:38ch;margin:18px auto 0;
+  opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.9,.25,1) .28s forwards;}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:34px;
+  opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.9,.25,1) .44s forwards;}
+.hero-stats div{text-align:center}
+.hero-stats span{display:block;font-family:"IBM Plex Mono";font-size:24px;font-weight:700;color:var(--ink)}
+.hero-stats small{color:var(--mute);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em}
+.hero-art-wrap{margin-top:44px;opacity:0;animation:rise .8s cubic-bezier(.2,.9,.25,1) .58s forwards}
+.scrollcue{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--mute);
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-family:"IBM Plex Mono";
+  opacity:0;animation:rise 1s ease .8s forwards}
+.scrollcue .ln{width:1.5px;height:26px;background:var(--hair);position:relative;overflow:hidden;border-radius:2px}
+.scrollcue .ln::after{content:"";position:absolute;left:0;top:-100%;width:100%;height:100%;
+  background:var(--terracotta-d);animation:drip 1.6s ease-in-out infinite}
+@keyframes drip{to{top:100%}}
+
+/* ---------- line act ---------- */
+.stations{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.stn{width:52px;height:52px;border-radius:12px;border:2.5px solid var(--ink);background:var(--paper);
+  display:flex;align-items:center;justify-content:center;position:relative;transition:background .4s,border-color .4s,transform .4s}
+.stn .n{font-family:"IBM Plex Mono";font-size:12px;font-weight:700;color:var(--ink)}
+.stn.working{background:var(--teal);transform:translateY(-2px)}
+.stn.blocked{background:var(--terracotta)}
+.stn.working .n,.stn.blocked .n{color:#fff}
+.stn.flag::after{content:"!";position:absolute;top:-9px;right:-7px;width:18px;height:18px;border-radius:50%;
+  background:var(--terracotta-d);color:#fff;font-family:Archivo;font-weight:800;font-size:12px;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;border:2px solid var(--cream)}
+.stn.flag.show::after{opacity:1}
+
+/* ---------- twin act kpis ---------- */
+.tags{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+.tag{background:var(--paper);border:2px solid var(--ink);border-radius:11px;padding:10px 14px 10px 20px;
+  position:relative;opacity:0;transform:translateY(8px) rotate(-2deg);transition:opacity .4s,transform .4s;min-width:100px}
+.tag:nth-child(even){transform:translateY(8px) rotate(2deg)}
+.tag.show{opacity:1;transform:translateY(0) rotate(0)}
+.tag::before{content:"";position:absolute;left:8px;top:50%;transform:translateY(-50%);width:6px;height:6px;
+  border-radius:50%;border:1.5px solid var(--ink);background:var(--cream)}
+.tag .tl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--mute);font-weight:700}
+.tag .tv{font-family:"IBM Plex Mono";font-size:18px;font-weight:700;color:var(--ink);margin-top:2px}
+
+/* ---------- people act ---------- */
+.roles{display:flex;flex-direction:column;gap:0;margin-top:18px}
+.role{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:2px dashed var(--hair);
+  opacity:.38;transform:translateX(-8px);transition:opacity .4s,transform .4s}
+.role:last-child{border-bottom:0}
+.role.show{opacity:1;transform:translateX(0)}
+.role .swatch{width:13px;height:13px;border-radius:4px;border:2px solid var(--ink);flex:none;background:var(--rc)}
+.role .rt{flex:1}
+.role .rk{font-family:"IBM Plex Mono";font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.role h4{font-size:14.5px;font-weight:700;color:var(--ink);margin-top:1px}
+.role .lands{font-size:11.5px;color:var(--slate);text-align:right;white-space:nowrap}
+
+/* ---------- finale ---------- */
+.finale{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 6vw;
+  background:var(--ink);color:var(--cream);position:relative;overflow:hidden}
+.finale::before{content:"";position:absolute;inset:0;opacity:.05;
+  background-image:repeating-linear-gradient(45deg,var(--cream) 0 2px,transparent 2px 16px)}
+.finale-inner{max-width:600px;text-align:center;position:relative;z-index:1;
+  opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
+.finale-inner.show{opacity:1;transform:translateY(0)}
+.finale-art{width:120px;margin:0 auto 26px}
+.finale h2{font-size:clamp(32px,5vw,52px);font-weight:900;color:#fff;max-width:none}
+.finale p{color:#d9c9ae;max-width:42ch;margin:16px auto 0;font-size:15.5px;line-height:1.6}
+.finale-cta{display:inline-flex;align-items:center;gap:9px;margin-top:30px;background:var(--mustard);
+  color:var(--ink);font-weight:800;font-size:15px;padding:15px 30px;border-radius:30px;text-decoration:none;
+  border:2.5px solid var(--ink);transition:transform .15s,background .15s}
+.finale-cta:hover{background:#fff;transform:translateY(-2px)}
+
+footer{background:var(--ink);color:#a9977c;text-align:center;padding:20px;font-size:11.5px;
+  border-top:1px solid rgba(255,255,255,.08)}
+
+@media(max-width:860px){
+  .stage{height:auto;position:relative;min-height:auto;padding:64px 0}
+  .stage-inner,.stage-inner.reverse{grid-template-columns:1fr;gap:26px}
+  .stage-inner.reverse .art{order:1}
+  .stage-inner.reverse .txt{order:2}
+  .art{order:1}
+  .txt{order:2}
+  .act .lede{max-width:none}
+  .role .lands{display:none}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .hero h1,.hero p,.hero-stats,.hero-art-wrap,.scrollcue{animation:none!important;opacity:1!important;transform:none!important}
+}
+
+/* ============================================================
+   PAGE TRANSITION — landing → sign-in. The brand mark morphs in
+   place across the navigation; everything else settles with a
+   soft fade. Unsupported browsers just navigate instantly.
+   ============================================================ */
+@view-transition{ navigation:auto; }
+
+.nav .brand{ view-transition-name:brand; }
+.nav-cta{ view-transition-name:cta; }
+
+/* the landing page is several viewports tall (scrollytelling sections) while the
+   sign-in page is a single fixed viewport — without this, the browser's default
+   behaviour stretches the whole-page snapshot between those two sizes every time,
+   which reads as a jarring shake/squish. Pinning the group to the viewport and
+   letting the images crop instead of stretch keeps the swap steady. */
+::view-transition-group(root){ animation:none; width:100vw; height:100vh; }
+::view-transition-image-pair(root){ isolation:isolate; }
+::view-transition-old(root),
+::view-transition-new(root){ width:100%; height:100%; object-fit:cover; object-position:top center; }
+::view-transition-old(root){ animation:seam-out .35s cubic-bezier(.4,0,.2,1) both; }
+::view-transition-new(root){ animation:seam-in .4s cubic-bezier(.2,.9,.25,1) both; }
+
+/* same short duration as the root fade on both the group (position/size)
+   and the image pair (crossfade) so the brand mark and button land exactly
+   when the rest of the page does, instead of visibly arriving after it. */
+::view-transition-group(brand),
+::view-transition-group(cta){ animation-duration:.4s; animation-timing-function:cubic-bezier(.2,.9,.25,1); }
+::view-transition-old(brand),::view-transition-new(brand),
+::view-transition-old(cta),::view-transition-new(cta){ animation-duration:.4s; }
+
+@keyframes seam-out{ to{ opacity:0; transform:scale(.97) translateY(8px); filter:blur(1px); } }
+@keyframes seam-in{ from{ opacity:0; transform:scale(1.02) translateY(-10px); } }
+
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){ animation:none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="brand">
+    <svg class="spool-mark" viewBox="0 0 40 40"><ellipse cx="20" cy="34" rx="13" ry="3" fill="var(--ink)" opacity=".12"/>
+      <rect x="8" y="8" width="24" height="24" rx="5" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="20" cy="20" r="6" fill="var(--mustard)" stroke="var(--ink)" stroke-width="2.5"/></svg>
+    <b>Seamline</b>
+  </div>
+  <a class="nav-cta" href="./app.html">Sign in</a>
+</nav>
+
+<div class="rail" id="rail">
+  <i data-act="hero"></i><i data-act="act-line"></i><i data-act="act-twin"></i><i data-act="act-people"></i><i data-act="finale"></i>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <h1>Seamline</h1>
+  <p>A digital twin for the sewing floor — every station, every operator, every minute of the shift, modeled before it runs.</p>
+  <div class="hero-stats">
+    <div><span class="mono">4</span><small>Lines</small></div>
+    <div><span class="mono">14</span><small>Operators</small></div>
+    <div><span class="mono">480</span><small>Min / shift</small></div>
+  </div>
+  <div class="hero-art-wrap">
+    <img class="hero-art" src="./hero.png" alt="Illustration of a sewing machine, folded fabric, a pattern, and finished garments on a rack">
+  </div>
+  <div class="scrollcue"><span>Scroll</span><div class="ln"></div></div>
+</section>
+
+<!-- ACT: THE LINE -->
+<section class="act" id="act-line" data-vh="220">
+  <div class="stage">
+    <div class="stage-inner txt-left">
+      <div class="txt">
+        <div class="kicker"><span class="dot"></span>THE LINE</div>
+        <h2>Station by station, second by second</h2>
+        <p class="lede">Eight sewing operations on one conveyor — set sleeve, join shoulder, attach collar, topstitch, bar tack. Balance it wrong and one station drowns in work while the next sits idle, waiting on it.</p>
+        <div class="stations" id="stations"></div>
+        <div class="cap" id="lineCap">Station 1 running</div>
+      </div>
+      <div class="art">
+        <svg class="art-deco" viewBox="0 0 460 260" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <ellipse cx="230" cy="235" rx="170" ry="12" fill="#3c2a1c" opacity=".07"/>
+          <path d="M20 140 C120 90 340 90 440 140" fill="none" stroke="#3c2a1c" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+        </svg>
+        <img src="./sewing-machine.png" alt="Illustration of a sewing machine">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACT: THE TWIN -->
+<section class="act" id="act-twin" data-vh="160">
+  <div class="stage">
+    <div class="stage-inner reverse">
+      <div class="txt">
+        <div class="kicker"><span class="dot"></span>THE TWIN</div>
+        <h2>See the shift before you run it</h2>
+        <p class="lede">Every operation carries its SMV, its machine, its place in the sequence. Move one and the precedence graph re-checks the whole line is still buildable.</p>
+        <div class="tags" id="tags">
+          <div class="tag"><div class="tl">Takt time</div><div class="tv">1.8 min</div></div>
+          <div class="tag"><div class="tl">Efficiency</div><div class="tv">82%</div></div>
+          <div class="tag"><div class="tl">Bottleneck</div><div class="tv">St. 6</div></div>
+          <div class="tag"><div class="tl">Graph</div><div class="tv">Acyclic ✓</div></div>
+        </div>
+      </div>
+      <div class="art">
+        <svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(20,20)">
+            <path d="M0 40 L150 0 L190 220 L20 250 Z" fill="#f2e6c8" stroke="#3c2a1c" stroke-width="3.5" stroke-linejoin="round"/>
+            <path id="patA" d="M35 70 Q65 65 72 110 Q75 150 58 190" fill="none" stroke="#8a7457" stroke-width="2.5" stroke-dasharray="7 7" pathLength="100"/>
+            <path id="patB" d="M105 55 Q135 65 132 115 Q130 165 115 205" fill="none" stroke="#8a7457" stroke-width="2.5" stroke-dasharray="7 7" pathLength="100"/>
+            <path id="patC" d="M55 100 L120 90" fill="none" stroke="#c07f2b" stroke-width="2" stroke-dasharray="4 6" pathLength="100"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACT: THE PEOPLE -->
+<section class="act" id="act-people" data-vh="180">
+  <div class="stage">
+    <div class="stage-inner txt-left">
+      <div class="txt">
+        <div class="kicker"><span class="dot"></span>THE PEOPLE</div>
+        <h2>Four roles, one shift</h2>
+        <p class="lede">Sign in and land exactly where the work is — no picker step. Each role gets its own color on the rack.</p>
+        <div class="roles" id="roles">
+          <div class="role" data-i="0" style="--rc:#7fada0"><div class="swatch"></div><div class="rt"><div class="rk">Industrial Engineer</div><h4>Dashboard</h4></div><div class="lands">Balances &amp; simulates</div></div>
+          <div class="role" data-i="1" style="--rc:#7ea3c4"><div class="swatch"></div><div class="rt"><div class="rk">Line Supervisor</div><h4>Shift overview</h4></div><div class="lands">Live station status</div></div>
+          <div class="role" data-i="2" style="--rc:#e0a347"><div class="swatch"></div><div class="rt"><div class="rk">Production Director</div><h4>Executive summary</h4></div><div class="lands">Order book, 4 lines</div></div>
+          <div class="role" data-i="3" style="--rc:#d17858"><div class="swatch"></div><div class="rt"><div class="rk">Sewing Operator</div><h4>My station</h4></div><div class="lands">Just their numbers</div></div>
+        </div>
+      </div>
+      <div class="art">
+        <svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="210" cy="238" rx="180" ry="12" fill="#3c2a1c" opacity=".06"/>
+          <line x1="20" y1="30" x2="400" y2="30" stroke="#3c2a1c" stroke-width="5" stroke-linecap="round"/>
+          <line x1="20" y1="30" x2="20" y2="220" stroke="#3c2a1c" stroke-width="5" stroke-linecap="round"/>
+          <line x1="400" y1="30" x2="400" y2="220" stroke="#3c2a1c" stroke-width="5" stroke-linecap="round"/>
+          <g id="peopleGarments">
+            <g data-role="0" class="garment" style="transform-origin:80px 34px"><path d="M80 22 L68 34 L80 40 L92 34 Z" fill="none" stroke="#3c2a1c" stroke-width="2.5"/><path d="M55 44 L80 38 L105 44 L112 150 Q80 162 48 150 Z" fill="#7fada0" stroke="#3c2a1c" stroke-width="3" stroke-linejoin="round"/></g>
+            <g data-role="1" class="garment" style="transform-origin:170px 34px;animation-delay:-1s"><path d="M170 22 L158 34 L170 40 L182 34 Z" fill="none" stroke="#3c2a1c" stroke-width="2.5"/><path d="M145 44 L170 38 L195 44 L188 140 L152 140 Z" fill="#7ea3c4" stroke="#3c2a1c" stroke-width="3" stroke-linejoin="round"/></g>
+            <g data-role="2" class="garment" style="transform-origin:260px 34px;animation-delay:-2s"><path d="M260 22 L248 34 L260 40 L272 34 Z" fill="none" stroke="#3c2a1c" stroke-width="2.5"/><path d="M235 44 L260 38 L285 44 L290 145 Q260 156 230 145 Z" fill="#e0a347" stroke="#3c2a1c" stroke-width="3" stroke-linejoin="round"/></g>
+            <g data-role="3" class="garment" style="transform-origin:340px 34px;animation-delay:-3s"><path d="M340 22 L328 34 L340 40 L352 34 Z" fill="none" stroke="#3c2a1c" stroke-width="2.5"/><path d="M312 44 L340 38 L368 44 L372 152 Q340 160 308 152 Z" fill="#d17858" stroke="#3c2a1c" stroke-width="3" stroke-linejoin="round"/></g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINALE -->
+<section class="finale" id="finale">
+  <div class="finale-inner" id="finaleInner">
+    <svg class="finale-art" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="30" width="100" height="90" rx="14" fill="#e0a347" stroke="#faf3e4" stroke-width="3.5"/>
+      <ellipse cx="60" cy="30" rx="50" ry="15" fill="#eab766" stroke="#faf3e4" stroke-width="3.5"/>
+      <ellipse cx="60" cy="120" rx="50" ry="15" fill="#c07f2b" stroke="#faf3e4" stroke-width="3.5"/>
+      <ellipse cx="60" cy="30" rx="18" ry="7" fill="#3c2a1c" stroke="#faf3e4" stroke-width="2.5"/>
+      <path d="M15 45 L105 45 M12 62 L108 62 M12 80 L108 80 M15 98 L105 98 M18 113 L102 113" stroke="#c07f2b" stroke-width="2" opacity=".5"/>
+    </svg>
+    <h2>Step onto the line</h2>
+    <p>Sign in with a seeded account and the numbers are already there — two styles, four lines, a full roster, ready to balance.</p>
+    <a class="finale-cta" href="./app.html">Enter Seamline →</a>
+  </div>
+</section>
+
+<footer>Seamline — a sewing-line digital twin for RMG production</footer>
+
+<script>
+(function(){
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const map=(v,i0,i1,o0,o1)=>{const t=clamp((v-i0)/(i1-i0),0,1);return lerp(o0,o1,t);};
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('.act[data-vh]').forEach(el=>{
+    if(!reduceMotion) el.style.height = el.getAttribute('data-vh')+'vh';
+  });
+
+  const nav=document.getElementById('nav'), rail=document.getElementById('rail');
+  function onNav(){
+    if(window.scrollY > window.innerHeight*0.5){nav.classList.add('solid');rail.classList.add('show')}
+    else{nav.classList.remove('solid');rail.classList.remove('show')}
+  }
+
+  const railItems=[...rail.querySelectorAll('i')];
+  const sections = railItems.map(i=>document.getElementById(i.dataset.act));
+
+  /* ---------- stations (Act: The Line) ---------- */
+  const OPS=[
+    {op:'Set sleeve',smv:0.62},{op:'Join shoulder',smv:0.48},{op:'Attach collar',smv:0.81},
+    {op:'Topstitch',smv:0.55},{op:'Set cuff',smv:0.44},{op:'Bar tack',smv:0.31},
+    {op:'Button hole',smv:0.58},{op:'Final check',smv:0.39}
+  ];
+  const BOTTLENECK_IDX=5;
+  const stationsEl=document.getElementById('stations');
+  OPS.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='stn'; d.innerHTML=`<span class="n">${i+1}</span>`;
+    d.title=o.op+' · '+o.smv.toFixed(2)+' SMV';
+    stationsEl.appendChild(d);
+  });
+  const stnEls=[...stationsEl.querySelectorAll('.stn')];
+  const lineCap=document.getElementById('lineCap');
+
+  function renderLine(p){
+    const runningIdx=clamp(Math.floor(p*stnEls.length),0,stnEls.length-1);
+    const bottleneckHit = runningIdx>=BOTTLENECK_IDX;
+    stnEls.forEach((el,i)=>{
+      el.classList.remove('working','blocked','flag','show');
+      if(!bottleneckHit){
+        if(i<=runningIdx) el.classList.add('working');
+      }else if(i<BOTTLENECK_IDX){
+        el.classList.add('working'); // already through the line before the jam
+      } // stations at/after the bottleneck stay idle — starved, not just unlit
+      if(i===BOTTLENECK_IDX && bottleneckHit){
+        el.classList.add('blocked','flag');
+        if(runningIdx>BOTTLENECK_IDX) el.classList.add('show');
+      }
+    });
+    lineCap.textContent = bottleneckHit
+      ? 'Station 6 blocked — starving Station 7'
+      : `Station ${runningIdx+1} running`;
+  }
+
+  /* ---------- twin ---------- */
+  const tagEls=[...document.querySelectorAll('#tags .tag')];
+  function renderTwin(p){
+    tagEls.forEach((t,i)=>t.classList.toggle('show', p>map(i,0,3,0.05,0.82)));
+  }
+
+  /* ---------- people ---------- */
+  const roleEls=[...document.querySelectorAll('#roles .role')];
+  const garmentEls=[...document.querySelectorAll('#peopleGarments .garment')];
+  function renderPeople(p){
+    roleEls.forEach((r)=>{
+      const i2=+r.dataset.i;
+      r.classList.toggle('show', p>map(i2,0,3,0.05,0.78));
+    });
+    garmentEls.forEach(g=>{
+      const i2=+g.dataset.role;
+      g.style.opacity = p>map(i2,0,3,0.05,0.78) ? 1 : 0.25;
+    });
+  }
+
+  const finaleInner=document.getElementById('finaleInner');
+  new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting) finaleInner.classList.add('show');});},{threshold:.3})
+    .observe(document.getElementById('finale'));
+
+  function actProgress(el){
+    const r=el.getBoundingClientRect();
+    const total=r.height-window.innerHeight;
+    if(total<=0) return 1;
+    return clamp(-r.top/total,0,1);
+  }
+  const actLine=document.getElementById('act-line'), actTwin=document.getElementById('act-twin'), actPeople=document.getElementById('act-people');
+
+  function railUpdate(){
+    let cur=0;
+    sections.forEach((s,i)=>{ if(!s) return; const r=s.getBoundingClientRect(); if(r.top<window.innerHeight*0.5) cur=i; });
+    railItems.forEach((it,i)=>it.classList.toggle('on', i===cur));
+  }
+
+  let ticking=false;
+  function loop(){
+    ticking=false; onNav();
+    if(!reduceMotion){
+      renderLine(actProgress(actLine));
+      renderTwin(actProgress(actTwin));
+      renderPeople(actProgress(actPeople));
+    }
+    railUpdate();
+  }
+  function onScroll(){ if(!ticking){ticking=true;requestAnimationFrame(loop);} }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  if(reduceMotion){
+    stnEls.forEach((el,i)=>el.classList.toggle('working', i<6));
+    stnEls[5].classList.add('blocked','flag','show');
+    tagEls.forEach(t=>t.classList.add('show'));
+    roleEls.forEach(r=>r.classList.add('show'));
+    garmentEls.forEach(g=>g.style.opacity=1);
+  }
+  loop();
+})();
+</script>
+<style>
+.garment{transition:opacity .4s}
+</style>
+</body>
+</html>

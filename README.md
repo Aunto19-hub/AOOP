@@ -15,7 +15,8 @@ cd seamline
 mvn spring-boot:run
 ```
 
-Then open **http://localhost:8080** and sign in.
+Then open **http://localhost:8080** for the landing page, and **http://localhost:8080/app.html**
+(or the landing page's "Sign in" / "Enter Seamline" buttons) to sign in.
 
 | Email                          | Password      | Role                | Lands on            |
 |--------------------------------|---------------|---------------------|---------------------|
@@ -105,7 +106,8 @@ src/main/java/com/seamline/
   security/     JwtService, JwtAuthenticationFilter, EmployeeDetailsService, SeamlineUserDetails
   config/       SecurityConfig, SeamlineProperties, DataSeeder
   dto/          request/response records
-src/main/resources/static/index.html    the whole front end, served by this app
+src/main/resources/static/index.html    landing page, served at "/"
+src/main/resources/static/app.html      the sign-in / stakeholder workspace app, served at "/app.html"
 ```
 
 **Dashboard request flow:** controller → `DashboardService` → `LineBalancer` (which asks a

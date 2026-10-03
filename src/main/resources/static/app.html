@@ -1,0 +1,2886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seamline — Stakeholder Workspaces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('seamline.google')==='off')document.documentElement.classList.add('no-google')}catch(e){}</script>
+<link rel="preconnect" href="https://accounts.google.com">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --ink:#11161d;
+  --slate:#5a6675;
+  --mute:#8b95a3;
+  --hair:#dfe4ea;
+  --paper:#ffffff;
+  --floor:#eef1f5;
+  --calico:#f7f5f0;
+
+  --indigo:#23408e;
+  --indigo-d:#182c63;
+  --indigo-l:#e8ecf7;
+
+  --run:#0f8f63;
+  --run-l:#e3f4ed;
+  --block:#c3372c;
+  --block-l:#fbe9e7;
+  --starve:#98a2b0;
+  --starve-l:#eef0f3;
+  --edge:#c9d2e2;
+
+  --t-plain:#23408e;
+  --t-over:#0f8f63;
+  --t-flat:#7b3fa0;
+  --t-bh:#c98a12;
+  --t-ba:#b8562f;
+  --t-iron:#4a6572;
+  --t-manual:#8b95a3;
+
+  --r:10px;
+  --sh:0 1px 2px rgba(17,22,29,.05), 0 8px 24px rgba(17,22,29,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow-x:hidden}
+body{
+  background:var(--floor);
+  color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.disp{font-family:Archivo,Inter,sans-serif;letter-spacing:-.02em}
+.mono,.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+.stitch{height:2px;background-image:repeating-linear-gradient(90deg,var(--hair) 0 7px,transparent 7px 13px)}
+.stitch-ink{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 7px,transparent 7px 13px)}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+#login{
+  position:fixed;inset:0;display:grid;grid-template-columns:1.15fr 1fr;z-index:50;
+  color:#3c2a1c;
+  /* landing-page palette, scoped to the sign-in screen only — #app keeps its own tokens */
+  --ink:#3c2a1c; --slate:#6b5643; --mute:#9c8a76; --hair:#e3d4b8;
+  --paper:#fffaf0; --floor:#f2e6c8; --calico:#faf3e4;
+  --indigo:#5a8a7d; --indigo-d:#3c2a1c; --indigo-l:#e6f0ec;
+  --run:#5a8a7d; --run-l:#e6f0ec; --block:#af5638; --block-l:#fbeae3;
+  --r:18px; --sh:0 10px 0 rgba(60,42,28,.06), 0 18px 40px rgba(60,42,28,.12);
+}
+.brand{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.spool{width:26px;height:26px;border-radius:50%;border:3px solid #fff;position:relative}
+.spool::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+.brand b{font-family:Archivo;font-weight:800;font-size:19px;letter-spacing:-.03em}
+
+/* landing-page theme: cream / paper / mustard / terracotta, matching index.html */
+#login .spool-mark{width:26px;height:26px;flex:none}
+.login-art{
+  background:#3c2a1c;color:#faf3e4;padding:56px;display:flex;flex-direction:column;
+  justify-content:space-between;position:relative;overflow:hidden;
+}
+.login-art::after{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(45deg,rgba(250,243,228,.05) 0 2px,transparent 2px 16px);
+}
+.login-art h1{font-size:46px;font-weight:800;line-height:1.05;max-width:11ch;position:relative;z-index:1}
+.login-art h1 em{font-style:normal;color:#e0a347}
+.login-art p{color:#d9c9ae;max-width:38ch;margin-top:18px;position:relative;z-index:1;font-size:15px}
+.art-stats{display:flex;gap:34px;position:relative;z-index:1}
+.art-stats div span{display:block;font-family:"IBM Plex Mono";font-size:26px;font-weight:600}
+.art-stats div small{color:#c2a97c;font-size:11px;text-transform:uppercase;letter-spacing:.09em}
+.art-seam{width:100%;max-width:360px;height:28px;position:relative;z-index:1;margin:8px 0 -8px}
+.art-seam path{animation:seam-march 5s linear infinite}
+.art-seam circle{fill:#e0a347}
+@keyframes seam-march{to{stroke-dashoffset:-120}}
+@media (prefers-reduced-motion: reduce){.art-seam path{animation:none}}
+
+.login-pane{background:#faf3e4;display:grid;place-items:center;padding:32px;position:relative}
+/* back to the landing page — same pill language as the other buttons */
+.back-link{
+  position:absolute;top:24px;left:28px;display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px 8px 13px;border:2px solid #3c2a1c;border-radius:30px;background:#fffaf0;color:#3c2a1c;
+  font-family:Inter;font-size:13px;font-weight:700;text-decoration:none;
+  transition:background .15s,transform .15s;
+}
+.back-link svg{width:15px;height:15px;flex:none}
+.back-link:hover{background:#fff;transform:translateY(-1px)}
+.back-link:focus-visible{outline:3px solid #c07f2b;outline-offset:2px}
+.ticket{
+  width:100%;max-width:352px;background:#fffaf0;border-radius:18px;
+  box-shadow:0 10px 0 rgba(60,42,28,.06), 0 18px 40px rgba(60,42,28,.12);
+  position:relative;padding:34px 30px 30px;border:1px solid #e3d4b8;
+}
+.punch{
+  position:absolute;top:26px;right:26px;width:15px;height:15px;border-radius:50%;
+  border:2px solid #e3d4b8;
+}
+.tk-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9c8a76;font-weight:600}
+.ticket h2{font-size:23px;font-weight:700;margin:4px 0 20px;font-family:Archivo}
+.ticket .stitch{margin-bottom:22px;background-image:repeating-linear-gradient(90deg,#e3d4b8 0 7px,transparent 7px 13px)}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#6b5643;margin-bottom:6px}
+.field input{
+  width:100%;padding:11px 13px;border:1px solid #e3d4b8;border-radius:10px;
+  font-family:Inter;font-size:14px;background:#fffdf8;color:#3c2a1c;
+}
+.field input:focus{outline:2px solid #5a8a7d;outline-offset:-1px;background:#fff}
+.field select{
+  width:100%;padding:11px 13px;border:1px solid #e3d4b8;border-radius:10px;
+  font-family:Inter;font-size:14px;background:#fffdf8;color:#3c2a1c;
+}
+.field select:focus{outline:2px solid #5a8a7d;outline-offset:-1px;background:#fff}
+/* hint text: there, but clearly not a value */
+#login .field input::placeholder{color:#9c8a76;opacity:.6}
+.row-between{display:flex;justify-content:space-between;align-items:center;margin:18px 0 22px;font-size:12.5px}
+.row-between label{color:#6b5643;display:flex;gap:7px;align-items:center;cursor:pointer}
+.row-between a{color:#5a8a7d;text-decoration:none;font-weight:600}
+.btn{
+  width:100%;padding:11.5px;border:2.5px solid #3c2a1c;border-radius:30px;background:#e0a347;color:#3c2a1c;
+  font-family:Inter;font-weight:800;font-size:14px;cursor:pointer;transition:background .15s,transform .15s;
+}
+.btn:hover{background:#fff;transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.btn:focus-visible{outline:3px solid #c07f2b;outline-offset:2px}
+.ticket .foot{margin-top:20px;font-size:11.5px;color:#9c8a76;text-align:center}
+.ticket .foot code{font-family:"IBM Plex Mono";background:#f2e6c8;padding:1px 5px;border-radius:4px}
+#login .login-err{display:none;color:#af5638;font-size:12.5px;margin:-8px 0 16px;background:#fbeae3;
+  border:1px solid #eac3b3;border-radius:10px;padding:8px 11px}
+#login .login-ok{display:none;color:#5a8a7d;font-size:12.5px;margin:-8px 0 16px;background:#e6f0ec;
+  border:1px solid #bcdcd0;border-radius:10px;padding:8px 11px}
+.or-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#9c8a76;font-size:11.5px}
+.or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:#e3d4b8}
+/* "Sign in with Google": Google renders its real button in a cross-origin iframe whose
+   look can't be changed, so we draw our own face and lay the real (invisible) button
+   exactly on top — clicks still land on Google's official button and the flow is
+   unchanged. GIS 'large' buttons are 40px tall; scaleY stretches the hit area to 46px. */
+.gbtn{position:relative;height:46px}
+.gbtn-face{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;pointer-events:none;
+  border:2.5px solid #3c2a1c;border-radius:30px;background:#fff;color:#3c2a1c;
+  font-family:Inter;font-weight:800;font-size:14px;transition:background .15s,transform .15s,opacity .3s;
+}
+.gbtn-face svg{width:18px;height:18px;flex:none}
+.gbtn:hover .gbtn-face{background:#fdf6e6;transform:translateY(-1px)}
+/* on screen from the first paint (so it's part of the page transition); dimmed and inert until Google's button is ready */
+.gbtn.pending .gbtn-face{opacity:.55}
+.gbtn.pending:hover .gbtn-face{background:#fff;transform:none}
+html.no-google #googleDivider,html.no-google #googleWrap{display:none}
+.gbtn:focus-within .gbtn-face{outline:3px solid #c07f2b;outline-offset:2px}
+#googleBtn{position:absolute;top:0;left:0;width:100%;height:40px;transform:scaleY(1.15);transform-origin:0 0;
+  opacity:.01;overflow:hidden}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{display:none;grid-template-columns:216px 1fr;min-height:100vh}
+#app.on{display:grid}
+aside{background:var(--indigo-d);color:#fff;padding:22px 0;display:flex;flex-direction:column}
+aside .brand{padding:0 22px 20px}
+aside .brand b{font-size:17px}
+nav{padding:14px 12px}
+nav button{
+  display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;margin-bottom:3px;
+  background:none;border:0;color:#b9c6e4;font-family:Inter;font-size:13.5px;font-weight:500;
+  border-radius:7px;cursor:pointer;text-align:left;transition:.13s;
+}
+nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+nav button.on{background:#fff;color:var(--indigo-d);font-weight:600}
+nav button i{width:16px;height:16px;border:1.6px solid currentColor;border-radius:3px;flex:none;opacity:.85}
+nav button.on i{background:var(--indigo);border-color:var(--indigo)}
+.grow{flex:1}
+.sidebtn-switch{margin:0 12px 14px;padding:9px 11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  border-radius:7px;color:#fff;font-family:Inter;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:calc(100% - 24px)}
+.sidebtn-switch:hover{background:rgba(255,255,255,.15)}
+.who{padding:16px 22px 0;font-size:12px;color:#8fa2cf}
+.who b{display:block;color:#fff;font-size:13px;font-weight:600}
+
+main{padding:26px 30px 60px;max-width:1360px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;gap:20px;flex-wrap:wrap}
+.top h2{font-size:26px;font-weight:700}
+.top p{color:var(--slate);font-size:13.5px;margin-top:3px}
+.top .acts{display:flex;gap:9px}
+.btn-s{padding:8px 15px;border-radius:7px;border:1px solid var(--hair);background:var(--paper);
+  font-family:Inter;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink)}
+.btn-s:hover{border-color:var(--indigo);color:var(--indigo)}
+.btn-s.pri{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.btn-s.pri:hover{background:var(--indigo-d)}
+
+.screen{display:none}
+.screen.on{display:block}
+
+.card{background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;margin-bottom:16px}
+.card>h3{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);font-weight:600;margin-bottom:14px;font-family:Inter}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1.55fr 1fr}
+@media(max-width:1080px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+
+/* KPI */
+.kpi{background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.kpi .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);font-weight:600}
+.kpi .v{font-family:"IBM Plex Mono";font-size:30px;font-weight:600;margin:7px 0 2px;letter-spacing:-.02em}
+.kpi .v small{font-size:13px;color:var(--mute);font-weight:400;margin-left:3px}
+.kpi .d{font-size:12px;font-weight:500}
+.up{color:var(--run)} .down{color:var(--block)}
+
+/* alert */
+.alert{display:flex;gap:13px;align-items:flex-start;background:var(--block-l);border:1px solid #f0c8c3;
+  border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.alert .dot{width:9px;height:9px;border-radius:50%;background:var(--block);margin-top:5px;flex:none}
+.alert b{display:block;font-size:13.5px;margin-bottom:2px}
+.alert p{font-size:13px;color:#7d3229}
+
+/* connection banner */
+.conn{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--slate);
+  background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:9px 14px;margin-bottom:16px}
+.conn .dot{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
+.conn.live .dot{background:var(--run)}
+.conn.down .dot{background:var(--block)}
+
+/* tables */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--mute);
+  font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--hair)}
+td{padding:10px;border-bottom:1px solid #f0f2f5;font-size:13px}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-family:"IBM Plex Mono";font-variant-numeric:tabular-nums}
+th.n{font-family:Inter}
+tbody tr:hover{background:#fafbfc}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;
+  padding:2px 8px;border-radius:20px;background:var(--floor);color:var(--slate)}
+.chip .sw{width:7px;height:7px;border-radius:50%}
+.pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px}
+.pill.ok{background:var(--run-l);color:var(--run)}
+.pill.bad{background:var(--block-l);color:var(--block)}
+.pill.mid{background:#fdf3e0;color:#9a6b0e}
+
+/* line view */
+.line-wrap{overflow-x:auto;padding:6px 2px 10px}
+.line{display:flex;min-width:min-content;align-items:stretch}
+.stn{min-width:112px;flex:1}
+.buf{display:flex;gap:3px;height:14px;align-items:center;justify-content:center;margin-bottom:5px}
+.bd{width:6px;height:6px;border-radius:1px;background:var(--hair)}
+.bd.f{background:var(--indigo)}
+.box{border:1px solid var(--hair);border-radius:8px;background:var(--paper);padding:9px 7px;text-align:center;
+  position:relative;transition:.14s}
+.box.working{border-color:var(--run);background:var(--run-l)}
+.box.blocked{border-color:var(--block);background:var(--block-l)}
+.box.starved{border-color:var(--hair);background:var(--starve-l)}
+.box.bn::after{content:"BOTTLENECK";position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  background:var(--block);color:#fff;font-size:7.5px;font-weight:700;letter-spacing:.08em;
+  padding:2px 6px;border-radius:3px;white-space:nowrap;font-family:Inter}
+.box .sid{font-size:9.5px;color:var(--mute);font-family:"IBM Plex Mono"}
+.box .sop{font-size:12px;font-weight:600;margin:2px 0;font-family:"IBM Plex Mono"}
+.box .smc{font-size:8.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.box .snm{font-size:11px;color:var(--slate);margin-top:4px}
+.box .stm{font-size:9.5px;color:var(--mute);font-family:"IBM Plex Mono"}
+.ub{height:3px;background:var(--hair);border-radius:2px;margin-top:6px;overflow:hidden}
+.uf{height:100%;background:var(--run);width:0;transition:width .25s}
+.conv{display:flex;align-items:center;color:var(--hair);padding:0 1px;font-size:15px}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--slate);margin-top:12px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* controls */
+.ctrls{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:5px}
+.ctl label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:600}
+.ctl label span{color:var(--indigo);font-family:"IBM Plex Mono"}
+input[type=range]{width:132px;accent-color:var(--indigo)}
+select{padding:7px 10px;border:1px solid var(--hair);border-radius:7px;background:var(--paper);
+  font-family:Inter;font-size:13px;color:var(--ink);cursor:pointer}
+.ctrls input[type=text]{padding:7px 10px;border:1px solid var(--hair);border-radius:7px;background:var(--paper);
+  font-family:Inter;font-size:13px;color:var(--ink);width:100%}
+.ctrls input[type=text]:focus{outline:2px solid #5a8a7d;outline-offset:-1px}
+
+/* skill heat grid */
+.heat{border-collapse:separate;border-spacing:2px}
+.heat th{padding:0 4px 8px;font-size:9.5px}
+.heat td{padding:0;border:0}
+.heat td.nm{padding-right:10px;font-size:12.5px;white-space:nowrap}
+.cellv{width:100%;padding:7px 4px;border-radius:4px;text-align:center;font-family:"IBM Plex Mono";
+  font-size:11.5px;font-weight:500}
+
+.dagwrap{overflow-x:auto}
+.note{font-size:12.5px;color:var(--slate);line-height:1.65}
+.note b{color:var(--ink)}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,22,29,.45);z-index:100;
+  align-items:center;justify-content:center;padding:20px}
+.modal-overlay.on{display:flex}
+.modal{background:var(--paper);border-radius:var(--r);box-shadow:var(--sh);padding:26px;width:100%;max-width:380px}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:16px}
+
+/* approvals */
+.appr-actions{display:flex;gap:6px}
+.appr-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--hair);background:#fff;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Inter}
+.appr-btn.ok{color:var(--run);border-color:#bfe3d2}
+.appr-btn.bad{color:var(--block);border-color:#f0c8c3}
+.appr-btn:hover{filter:brightness(.97)}
+
+/* operator hero */
+.op-hero{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.op-hero .stbig{width:96px;height:96px;border-radius:14px;background:var(--indigo);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.op-hero .stbig b{font-family:"IBM Plex Mono";font-size:24px}
+.op-hero .stbig span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-top:2px}
+.op-hero-meta div{margin-bottom:6px;font-size:13.5px}
+.op-hero-meta b{color:var(--slate);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-right:8px}
+.progress-track{height:8px;background:var(--floor);border-radius:4px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--run);border-radius:4px;transition:width .3s}
+.timeline{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #f0f2f5}
+.tl-item:last-child{border-bottom:0}
+.tl-time{width:100px;flex:none;font-family:"IBM Plex Mono";font-size:12.5px;color:var(--slate)}
+.tl-label{font-size:13.5px}
+
+/* exec */
+.linebar{display:flex;align-items:center;gap:10px}
+.linebar .track{flex:1;height:8px;background:var(--floor);border-radius:4px;overflow:hidden;min-width:80px}
+.linebar .fill{height:100%;border-radius:4px}
+
+/* ============================================================
+   CHAT: group channel + direct messages — its own full-page screen
+   ============================================================ */
+.chat-panel{
+  display:flex;flex-direction:column;overflow:hidden;padding:0;
+  height:min(640px, calc(100vh - 220px));
+}
+.chat-tabs{display:flex;border-bottom:1px solid var(--hair);flex:none}
+.chat-tab{
+  flex:1;padding:10px;border:0;background:none;cursor:pointer;font-size:12.5px;font-weight:600;
+  color:var(--slate);border-bottom:2px solid transparent;
+}
+.chat-tab.on{color:var(--indigo);border-bottom-color:var(--indigo)}
+.chat-view{flex:1;display:flex;flex-direction:column;min-height:0}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.chat-placeholder{color:var(--mute);font-size:12.5px;text-align:center;margin:auto}
+.chat-msg{max-width:80%;align-self:flex-start}
+.chat-msg.own{align-self:flex-end}
+.chat-msg-from{font-size:10.5px;font-weight:600;color:var(--slate);margin-bottom:2px}
+.chat-msg-body{
+  background:var(--floor);color:var(--ink);padding:8px 11px;border-radius:12px 12px 12px 3px;
+  font-size:13px;line-height:1.4;white-space:pre-wrap;word-break:break-word;
+}
+.chat-msg.own .chat-msg-body{background:var(--indigo);color:#fff;border-radius:12px 12px 3px 12px}
+.chat-msg-time{font-size:10px;color:var(--mute);margin-top:3px}
+.chat-msg.own .chat-msg-time{text-align:right}
+.chat-unseen-tag{font-size:10px;color:var(--mute);font-style:italic;margin-left:6px}
+.chat-input-row{display:flex;gap:8px;padding:10px;border-top:1px solid var(--hair);flex:none}
+.chat-input-row input{
+  flex:1;padding:9px 11px;border:1px solid var(--hair);border-radius:20px;font-family:Inter;font-size:13px;background:#fcfcfd;
+}
+.chat-input-row input:focus{outline:2px solid var(--indigo);outline-offset:-1px;background:#fff}
+.chat-send{
+  border:0;background:var(--indigo);color:#fff;border-radius:20px;padding:0 16px;font-weight:600;
+  font-size:12.5px;cursor:pointer;
+}
+.chat-send:hover{background:var(--indigo-d)}
+.chat-send:disabled{opacity:.5;cursor:default}
+.chat-direct-layout{flex:1;display:flex;min-height:0}
+.chat-contacts{width:220px;flex:none;border-right:1px solid var(--hair);overflow-y:auto}
+.chat-contact{
+  display:block;width:100%;text-align:left;border:0;background:none;padding:11px 14px;cursor:pointer;
+  border-bottom:1px solid var(--floor);
+}
+.chat-contact:hover{background:var(--floor)}
+.chat-contact.on{background:var(--indigo-l)}
+.chat-contact-name{font-size:12px;font-weight:600;color:var(--ink);line-height:1.3}
+.chat-contact.unread .chat-contact-name{font-weight:800}
+.chat-contact-role{font-size:10.5px;color:var(--mute)}
+.chat-unread-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--indigo);margin-left:6px;vertical-align:middle}
+.chat-direct-thread{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ============================================================
+   LANDING-PAGE THEME (every signed-in portal)
+   — the landing page's palette and feel
+   (cream / paper / ink, teal-mustard-terracotta, mono kickers, chunky
+   offset shadows, pill buttons, dashed "stitch" rules), so every portal
+   reads as the same product as index.html and the sign-in screen.
+   Scoped to body.theme-landing (set unconditionally in enterRole). It lives
+   on <body>, not #app, because the add-operation / add-operator modals are
+   siblings of #app.
+   Every colour the charts and legends draw comes from these tokens.
+   ============================================================ */
+body.theme-landing{
+  --ink:#3c2a1c; --slate:#6b5643; --mute:#9c8a76; --hair:#e3d4b8;
+  --paper:#fffaf0; --floor:#f2e6c8; --calico:#faf3e4;
+  --mustard:#e0a347; --mustard-d:#c07f2b; --kicker:#a86d1e;
+
+  --indigo:#5a8a7d; --indigo-d:#3c2a1c; --indigo-l:#e6f0ec;
+  --run:#5a8a7d; --run-l:#e6f0ec;
+  --block:#af5638; --block-l:#fbeae3;
+  --starve:#b9a78e; --starve-l:#f2e9d6; --edge:#d6c5a4;
+
+  --t-plain:#557ca0; --t-over:#5a8a7d; --t-flat:#8c6a94; --t-bh:#c07f2b;
+  --t-ba:#af5638; --t-iron:#7a6a58; --t-manual:#9c8a76;
+
+  --r:16px;
+  --sh:0 6px 0 rgba(60,42,28,.05), 0 14px 32px rgba(60,42,28,.09);
+  background:var(--calico);
+}
+
+/* sidebar: the landing page's dark "finale" panel with the diagonal weave */
+body.theme-landing aside{background:var(--ink);position:relative;overflow:hidden}
+body.theme-landing aside::before{content:"";position:absolute;inset:0;opacity:.05;pointer-events:none;
+  background-image:repeating-linear-gradient(45deg,#faf3e4 0 2px,transparent 2px 16px)}
+body.theme-landing aside>*{position:relative}
+body.theme-landing aside .brand b{color:#faf3e4}
+body.theme-landing .spool{width:24px;height:24px;border-radius:6px;border:3px solid #faf3e4}
+body.theme-landing .spool::after{inset:3px;box-sizing:border-box;background:var(--mustard);border:2px solid #faf3e4}
+body.theme-landing nav button{color:#d9c9ae;border-radius:12px}
+body.theme-landing nav button:hover{background:rgba(250,243,228,.09);color:#fff}
+body.theme-landing nav button.on{background:var(--mustard);color:var(--ink);font-weight:700}
+body.theme-landing nav button.on i{background:var(--ink);border-color:var(--ink)}
+body.theme-landing .sidebtn-switch{border-radius:12px;background:rgba(250,243,228,.08);border-color:rgba(250,243,228,.2)}
+body.theme-landing .sidebtn-switch:hover{background:rgba(250,243,228,.16)}
+body.theme-landing .who{color:#c2a97c}
+
+/* headings, cards, KPI "tags" */
+body.theme-landing .top h2{font-weight:800;letter-spacing:-.015em}
+body.theme-landing .card>h3{font-family:"IBM Plex Mono";color:var(--kicker);letter-spacing:.06em;font-weight:600}
+body.theme-landing .kpi{border:2px solid var(--ink)}
+body.theme-landing .kpi .k{font-weight:700}
+body.theme-landing .alert{border-color:#eac3b3}
+body.theme-landing .alert p{color:#8a3f27}
+body.theme-landing .conn{border-radius:var(--r)}
+
+/* buttons: pill, ink outline — same as the sign-in button and landing CTAs */
+body.theme-landing .btn-s{border:2px solid var(--ink);border-radius:30px;background:var(--paper);color:var(--ink);
+  font-weight:700;padding:8px 18px;transition:background .15s,transform .15s}
+body.theme-landing .btn-s:hover{background:#fff;border-color:var(--ink);color:var(--ink);transform:translateY(-1px)}
+body.theme-landing .btn-s.pri{background:var(--mustard);border-color:var(--ink);color:var(--ink)}
+body.theme-landing .btn-s.pri:hover{background:#fff}
+body.theme-landing .btn-s:focus-visible{outline:3px solid var(--mustard-d);outline-offset:2px}
+body.theme-landing select{border-radius:10px}
+
+/* tables: dashed stitch rows */
+body.theme-landing th{border-bottom:2px solid var(--hair)}
+body.theme-landing td{border-bottom:1.5px dashed var(--hair)}
+body.theme-landing tr:last-child td,body.theme-landing .heat td{border-bottom:0}
+body.theme-landing tbody tr:hover{background:#fdf6e6}
+body.theme-landing .pill.mid{background:#f8e7c4;color:#8a5a14}
+body.theme-landing .cellv{border-radius:6px}
+
+/* messages */
+body.theme-landing .chat-input-row input{background:#fffdf8}
+body.theme-landing .chat-msg.own .chat-msg-body{background:var(--ink);color:#faf3e4}
+body.theme-landing .chat-send{background:var(--mustard);color:var(--ink);border:2px solid var(--ink);font-weight:700}
+body.theme-landing .chat-send:hover{background:#fff}
+body.theme-landing .chat-contact.on{background:var(--indigo-l)}
+body.theme-landing .chat-unread-dot{background:var(--mustard-d)}
+
+/* registration requests (Director) */
+body.theme-landing .appr-btn{border:2px solid var(--ink);border-radius:30px;background:var(--paper);
+  font-weight:700;padding:5px 14px;transition:background .15s,transform .15s}
+body.theme-landing .appr-btn.ok{background:var(--run-l);color:#3f6e60;border-color:var(--ink)}
+body.theme-landing .appr-btn.bad{background:var(--block-l);color:var(--block);border-color:var(--ink)}
+body.theme-landing .appr-btn:hover{filter:none;background:#fff;transform:translateY(-1px)}
+body.theme-landing .appr-btn:disabled{opacity:.6;transform:none}
+body.theme-landing main .login-ok{color:#3f6e60;font-size:12.5px;background:var(--run-l);
+  border:1px solid #bcdcd0;border-radius:10px;padding:8px 11px}
+
+/* modals */
+body.theme-landing .modal-overlay{background:rgba(60,42,28,.5)}
+body.theme-landing .modal{border:2px solid var(--ink)}
+
+/* ============================================================
+   PAGE TRANSITION — mirrors index.html so the brand mark morphs
+   in place when arriving from the landing page.
+   ============================================================ */
+@view-transition{ navigation:auto; }
+
+#login .login-art .brand{ view-transition-name:brand; }
+#signin{ view-transition-name:cta; }
+
+/* mirrors index.html's fix: pin the root snapshot to the viewport instead of
+   letting the browser stretch between the tall landing page and this fixed,
+   single-viewport sign-in screen — that size mismatch is what caused the shake. */
+::view-transition-group(root){ animation:none; width:100vw; height:100vh; }
+::view-transition-image-pair(root){ isolation:isolate; }
+::view-transition-old(root),
+::view-transition-new(root){ width:100%; height:100%; object-fit:cover; object-position:top center; }
+::view-transition-old(root){ animation:seam-out .35s cubic-bezier(.4,0,.2,1) both; }
+::view-transition-new(root){ animation:seam-in .4s cubic-bezier(.2,.9,.25,1) both; }
+
+/* the brand mark and the sign-in button both morph across the navigation.
+   Everything shares the same short duration as the root fade so nothing
+   drifts out of sync or visibly arrives after the rest of the page has
+   already settled (that mismatch is what read as a delay on the button). */
+::view-transition-group(brand),
+::view-transition-group(cta){ animation-duration:.4s; animation-timing-function:cubic-bezier(.2,.9,.25,1); }
+::view-transition-old(brand),::view-transition-new(brand),
+::view-transition-old(cta),::view-transition-new(cta){ animation-duration:.4s; }
+
+@keyframes seam-out{ to{ opacity:0; transform:scale(.97) translateY(8px); filter:blur(1px); } }
+@keyframes seam-in{ from{ opacity:0; transform:scale(1.02) translateY(-10px); } }
+
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){ animation:none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ LOGIN ============================ -->
+<div id="login">
+  <div class="login-art">
+    <div class="brand">
+      <svg class="spool-mark" viewBox="0 0 40 40"><ellipse cx="20" cy="34" rx="13" ry="3" fill="#faf3e4" opacity=".15"/>
+        <rect x="8" y="8" width="24" height="24" rx="5" fill="none" stroke="#faf3e4" stroke-width="3"/>
+        <circle cx="20" cy="20" r="6" fill="#e0a347" stroke="#faf3e4" stroke-width="2.5"/></svg>
+      <b>Seamline</b>
+    </div>
+    <div>
+      <h1>Balance the line <em>before</em> you run it.</h1>
+      <p>One system, four stakeholders. Sign in with your email or mobile number and you'll land straight in the workspace built for your role — no picking required.</p>
+      <svg class="art-seam" viewBox="0 0 360 28" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+        <path d="M2 14 C 50 2, 80 26, 130 14 S 210 2, 260 14 S 330 26, 358 14"
+              fill="none" stroke="rgba(250,243,228,.4)" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 11"/>
+        <circle cx="2" cy="14" r="3.5"/>
+        <circle cx="358" cy="14" r="3.5"/>
+      </svg>
+    </div>
+    <div class="art-stats">
+      <div><span>10.70</span><small>SMV per polo</small></div>
+      <div><span>14</span><small>Operators</small></div>
+      <div><span>480</span><small>Minute shift</small></div>
+    </div>
+  </div>
+
+  <div class="login-pane">
+    <a class="back-link" href="./index.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8H3M7.5 3.5 3 8l4.5 4.5"/></svg>
+      Back to home
+    </a>
+    <div class="ticket">
+      <div class="punch"></div>
+      <div class="tk-label">Line-07 · Unit 2</div>
+      <h2 id="ticketTitle">Sign in</h2>
+      <div class="stitch"></div>
+
+      <p class="login-err" id="loginErr"></p>
+      <p class="login-ok" id="loginOk"></p>
+
+      <div id="loginFields">
+        <div class="field">
+          <label for="uid">Email or mobile number</label>
+          <input id="uid" type="text" placeholder="Enter your email or mobile number" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="pw">Password</label>
+          <input id="pw" type="password" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+        <div class="row-between">
+          <label><input type="checkbox" checked> Keep me signed in</label>
+          <a href="#" id="showForgot">Forgot password</a>
+        </div>
+        <button class="btn" id="signin">Sign in</button>
+        <div class="or-divider" id="googleDivider"><span>or</span></div>
+        <div class="gbtn pending" id="googleWrap">
+          <div class="gbtn-face" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Sign in with Google
+          </div>
+          <div id="googleBtn"></div>
+        </div>
+        <p style="text-align:center;font-size:12.5px;color:var(--slate);margin-top:14px">New here? <a href="#" id="showRegister">Create account</a></p>
+      </div>
+
+      <div id="registerPanel" style="display:none">
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" type="email" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <input id="regPassword" type="password" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="regName">Full name</label>
+          <input id="regName">
+        </div>
+        <div class="field">
+          <label for="regPhone">Mobile number</label>
+          <input id="regPhone" type="tel" autocomplete="tel" placeholder="e.g. +880 1XXX-XXXXXX">
+        </div>
+        <div class="field">
+          <label for="regTitle">Job title</label>
+          <input id="regTitle" placeholder="e.g. Industrial Engineer">
+        </div>
+        <div class="field">
+          <label for="regRole">Role</label>
+          <select id="regRole">
+            <option value="INDUSTRIAL_ENGINEER">Industrial Engineer</option>
+            <option value="SUPERVISOR">Line Supervisor</option>
+            <option value="ADMIN">Administrator</option>
+            <option value="OPERATOR">Sewing Operator</option>
+          </select>
+        </div>
+        <button class="btn" id="registerCreate">Create account</button>
+        <p class="foot"><a href="#" id="registerCancel">Back to sign in</a></p>
+      </div>
+
+      <div id="signupPanel" style="display:none">
+        <p style="font-size:12.5px;color:var(--slate);margin-bottom:16px">
+          No Seamline account yet for <b id="signupEmail"></b>. Set up your workspace to continue.
+        </p>
+        <div class="field">
+          <label for="signupName">Full name</label>
+          <input id="signupName">
+        </div>
+        <div class="field">
+          <label for="signupPhone">Mobile number</label>
+          <input id="signupPhone" type="tel" autocomplete="tel" placeholder="e.g. +880 1XXX-XXXXXX">
+        </div>
+        <div class="field">
+          <label for="signupTitle">Job title</label>
+          <input id="signupTitle" placeholder="e.g. Industrial Engineer">
+        </div>
+        <div class="field">
+          <label for="signupRole">Role</label>
+          <select id="signupRole">
+            <option value="INDUSTRIAL_ENGINEER">Industrial Engineer</option>
+            <option value="SUPERVISOR">Line Supervisor</option>
+            <option value="ADMIN">Administrator</option>
+            <option value="OPERATOR">Sewing Operator</option>
+          </select>
+        </div>
+        <button class="btn" id="signupCreate">Create account</button>
+        <p class="foot"><a href="#" id="signupCancel">Back to sign in</a></p>
+      </div>
+
+      <div id="forgotPanel" style="display:none">
+        <div id="forgotStep1">
+          <p style="font-size:12.5px;color:var(--slate);margin-bottom:16px">
+            Enter the email or mobile number on your account. We'll email a verification code to the address on file.
+          </p>
+          <div class="field">
+            <label for="forgotIdentifier">Email or mobile number</label>
+            <input id="forgotIdentifier">
+          </div>
+          <button class="btn" id="forgotSend">Send code</button>
+        </div>
+        <div id="forgotStep2" style="display:none">
+          <p style="font-size:12.5px;color:var(--slate);margin-bottom:16px">
+            Enter the code we emailed you, and your new password.
+          </p>
+          <div class="field">
+            <label for="forgotCode">Verification code</label>
+            <input id="forgotCode" inputmode="numeric" autocomplete="one-time-code">
+          </div>
+          <div class="field">
+            <label for="forgotNewPassword">New password</label>
+            <input id="forgotNewPassword" type="password" autocomplete="new-password">
+          </div>
+          <button class="btn" id="forgotReset">Reset password</button>
+        </div>
+        <p class="foot"><a href="#" id="forgotCancel">Back to sign in</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ APP (role workspace) ============================ -->
+<div id="app">
+  <aside>
+    <div class="brand"><div class="spool"></div><b>Seamline</b></div>
+    <div class="stitch stitch-ink" style="margin:0 22px"></div>
+    <nav id="nav"></nav>
+    <div class="grow"></div>
+    <button class="sidebtn-switch" id="signOutBtn">↺ Sign out</button>
+    <div class="who" id="who"></div>
+  </aside>
+
+  <main>
+
+    <!-- ================= INDUSTRIAL ENGINEER ================= -->
+    <section class="screen" id="s-dash">
+      <div class="top">
+        <div>
+          <h2>Line-07 · Men's Polo Shirt</h2>
+          <p>Buyer Nordic Basics AB · order 24,000 pcs · shift 08:00–16:00</p>
+        </div>
+        <div class="acts">
+          <button class="btn-s" id="dashExport">Export report</button>
+          <button class="btn-s pri" id="dashRun">Re-run simulation</button>
+        </div>
+      </div>
+
+      <div class="alert">
+        <div class="dot"></div>
+        <div>
+          <b id="alertT">ST9 is constraining the line</b>
+          <p id="alertP">Side seam on overlock runs 1.10 min/pc against a 0.76 min target. Stations upstream lost time to blocking.</p>
+        </div>
+      </div>
+
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k">Pieces this shift</div><div class="v num" id="kPcs">0</div><div class="d up" id="kPcsD">— vs target</div></div>
+        <div class="kpi"><div class="k">Output rate</div><div class="v num" id="kRate">0<small>pcs/hr</small></div><div class="d" style="color:var(--slate)">Target 78 pcs/hr</div></div>
+        <div class="kpi"><div class="k">Line efficiency</div><div class="v num" id="kEff">0<small>%</small></div><div class="d" style="color:var(--slate)">Earned ÷ available minutes</div></div>
+        <div class="kpi"><div class="k">Balance loss</div><div class="v num" id="kLoss">0<small>%</small></div><div class="d" style="color:var(--slate)">Idle capacity in the plan</div></div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <h3>Production by hour — simulated vs target</h3>
+          <div id="chartHour"></div>
+        </div>
+        <div class="card">
+          <h3>Where the shift went</h3>
+          <div id="chartLoss"></div>
+          <div class="stitch" style="margin:14px 0"></div>
+          <p class="note"><b>Blocking</b> is a station that finished but cannot hand over. <b>Starvation</b> is a station waiting for work. Both are lost paid minutes.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Station performance</h3>
+        <table><thead><tr>
+          <th>Station</th><th>Machine</th><th>Operator</th><th>Operations</th>
+          <th class="n">Min/pc</th><th class="n">Utilisation</th><th class="n">Blocked</th><th class="n">Starved</th><th>Status</th>
+        </tr></thead><tbody id="dashTbl"></tbody></table>
+      </div>
+
+      <div class="card">
+        <h3>Propose a change for supervisor sign-off</h3>
+        <p class="note" style="margin-bottom:14px">Found something worth changing on the line? Send it to your supervisor — they'll approve or reject it from their Approvals screen.</p>
+        <div class="ctrls" style="margin-bottom:14px">
+          <div class="ctl" style="flex:2;min-width:240px"><label>Proposed change</label>
+            <input type="text" id="propTitle" placeholder="e.g. Increase buffer at ST4 to 5" maxlength="200">
+          </div>
+          <div class="ctl" style="flex:2;min-width:240px"><label>Projected impact</label>
+            <input type="text" id="propImpact" placeholder="e.g. +3.1% projected output" maxlength="300">
+          </div>
+          <div class="ctl"><label>&nbsp;</label><button class="btn-s pri" id="propSubmit">Submit proposal</button></div>
+        </div>
+        <p class="login-ok" id="propMsg" style="display:none;margin:0 0 10px"></p>
+        <table><thead><tr>
+          <th>Proposed change</th><th>Projected impact</th><th>Status</th>
+        </tr></thead><tbody id="myPropTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-line">
+      <div class="top">
+        <div><h2>Line simulation</h2><p>Discrete-event playback of one 480-minute shift</p></div>
+        <div class="acts">
+          <button class="btn-s" id="lineReset">Reset</button>
+          <button class="btn-s pri" id="lineRun">Run shift</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ctrls">
+          <div class="ctl"><label>Algorithm</label>
+            <select id="algo"><option value="rpw">Ranked positional weight</option><option value="greedy">Greedy topological fill</option></select>
+          </div>
+          <div class="ctl"><label>Team size <span id="vTeam">14</span></label><input type="range" id="team" min="6" max="14" value="14"></div>
+          <div class="ctl"><label>Buffer per station <span id="vBuf">3</span></label><input type="range" id="buf" min="1" max="10" value="3"></div>
+          <div class="ctl"><label>Variability <span id="vVar">12%</span></label><input type="range" id="vari" min="0" max="35" value="12"></div>
+          <div class="ctl"><label>Playback <span id="vSpd">8×</span></label><input type="range" id="spd" min="1" max="40" value="8"></div>
+          <div class="ctl"><label>Seed</label><select id="seed"><option>42</option><option>101</option><option>777</option><option>2024</option></select></div>
+        </div>
+      </div>
+
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k">Shift clock</div><div class="v num" id="lClock">0<small>/480 min</small></div></div>
+        <div class="kpi"><div class="k">Pieces out</div><div class="v num" id="lPcs">0</div></div>
+        <div class="kpi"><div class="k">Rate</div><div class="v num" id="lRate">0<small>pcs/hr</small></div></div>
+        <div class="kpi"><div class="k">Cycle time</div><div class="v num" id="lCyc">0<small>min/pc</small></div></div>
+      </div>
+
+      <div class="card">
+        <h3>Sewing line</h3>
+        <div class="line-wrap"><div class="line" id="lineEl"></div></div>
+        <div class="legend">
+          <span><i style="background:var(--run)"></i>Working</span>
+          <span><i style="background:var(--block)"></i>Blocked — next buffer full</span>
+          <span><i style="background:var(--starve)"></i>Starved — waiting on upstream</span>
+          <span><i style="background:var(--indigo)"></i>Bundle waiting in buffer</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="note"><b>Try this.</b> Drag buffer down to 1 and run again. Blocking spreads backwards from the bottleneck and output drops — nothing in the code says that should happen, it falls out of buffer capacity meeting station speed.</p>
+      </div>
+    </section>
+
+    <section class="screen" id="s-style">
+      <div class="top">
+        <div><h2>Style breakdown</h2><p>Men's Polo Shirt · 16 operations · 10.70 SMV</p></div>
+        <div class="acts">
+          <button class="btn-s" id="importCsvBtn" title="CSV columns: code,name,smv,machine,minGrade,predecessors — predecessors semicolon-separated. A header row is detected and skipped automatically.">Import from CSV</button>
+          <input type="file" id="csvFile" accept=".csv,text/csv" hidden>
+          <button class="btn-s pri" id="addOpBtn">Add operation</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Precedence graph — operations flow left to right</h3>
+        <div class="dagwrap" id="dag"></div>
+        <div class="legend" id="dagLegend"></div>
+      </div>
+
+      <div class="card">
+        <h3>Operations</h3>
+        <table><thead><tr>
+          <th>Code</th><th>Operation</th><th>Machine</th><th class="n">SMV</th>
+          <th class="n">Min grade</th><th>Depends on</th>
+        </tr></thead><tbody id="opTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-ops">
+      <div class="top">
+        <div><h2>Operators</h2><p>Efficiency by machine type — this is why placement changes output</p></div>
+        <div class="acts">
+          <button class="btn-s" id="importRosterBtn" title="CSV columns: code,name,grade,defaultEfficiency,skills — skills as machine:efficiency pairs separated by ;. A header row is detected and skipped automatically.">Import roster</button>
+          <input type="file" id="rosterCsvFile" accept=".csv,text/csv" hidden>
+          <button class="btn-s pri" id="addOperatorBtn">Add operator</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Skill matrix — 1.00 is standard pace</h3>
+        <div style="overflow-x:auto"><table class="heat" id="heat"></table></div>
+        <div class="legend" style="margin-top:14px">
+          <span><i style="background:color-mix(in srgb, var(--run) 30%, var(--paper))"></i>Below standard</span>
+          <span><i style="background:color-mix(in srgb, var(--run) 58%, var(--paper))"></i>At standard</span>
+          <span><i style="background:var(--run)"></i>Above standard</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="s-scen">
+      <div class="top">
+        <div><h2>Scenarios</h2><p>Same style, same team, same seed — only one variable changes</p></div>
+        <div class="acts" style="align-items:flex-end">
+          <div class="ctl"><label>Seed</label><select id="scenSeed"><option>42</option><option>101</option><option>777</option><option>2024</option></select></div>
+          <button class="btn-s pri" id="scenRun">Run comparison</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Simulated output</h3>
+        <div id="chartScen"><p class="note">Pick a seed and press <b>Run comparison</b> to simulate the five scenarios.</p></div>
+      </div>
+      <div class="card">
+        <h3>Detail</h3>
+        <table><thead><tr>
+          <th>Scenario</th><th class="n">Stations</th><th class="n">Cycle time</th>
+          <th class="n">Balance loss</th><th class="n">Pieces/shift</th><th class="n">Line eff.</th><th>Verdict</th>
+        </tr></thead><tbody id="scenTbl"></tbody></table>
+      </div>
+      <div class="card">
+        <p class="note"><b>Reading this table.</b> Every row ran against the same random seed, so any difference is caused by the variable named in the scenario and not by chance. Re-run with a different seed to confirm a result holds.</p>
+      </div>
+    </section>
+
+    <!-- ================= LINE SUPERVISOR ================= -->
+    <section class="screen" id="s-shift">
+      <div class="top">
+        <div><h2>Shift overview</h2><p>Line-07 · live monitoring for the current shift</p></div>
+        <div class="acts"><button class="btn-s pri" id="shiftRun">Refresh</button></div>
+      </div>
+
+      <div class="alert">
+        <div class="dot"></div>
+        <div><b id="sAlertT">—</b><p id="sAlertP">—</p></div>
+      </div>
+
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k">Pieces this shift</div><div class="v num" id="sKPcs">0</div></div>
+        <div class="kpi"><div class="k">Output rate</div><div class="v num" id="sKRate">0<small>pcs/hr</small></div></div>
+        <div class="kpi"><div class="k">Line efficiency</div><div class="v num" id="sKEff">0<small>%</small></div></div>
+        <div class="kpi"><div class="k">Balance loss</div><div class="v num" id="sKLoss">0<small>%</small></div></div>
+      </div>
+
+      <div class="card">
+        <h3>Station status</h3>
+        <table><thead><tr>
+          <th>Station</th><th>Operator</th><th class="n">Utilisation</th><th class="n">Blocked (min)</th><th class="n">Starved (min)</th><th>Status</th>
+        </tr></thead><tbody id="shiftTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-approve">
+      <div class="top">
+        <div><h2>Approvals</h2><p>Changes proposed by the industrial engineer, waiting on supervisor sign-off</p></div>
+      </div>
+      <div class="card">
+        <table><thead><tr>
+          <th>Proposed change</th><th>Projected impact</th><th>Status</th><th></th>
+        </tr></thead><tbody id="apprTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-roster">
+      <div class="top">
+        <div><h2>Team roster</h2><p>Everyone assigned to Line-07 today, and where the current plan puts them</p></div>
+      </div>
+      <div class="card">
+        <table><thead><tr>
+          <th>Operator</th><th class="n">Grade</th><th>Station</th><th>Machine</th><th class="n">Min/pc</th>
+        </tr></thead><tbody id="rosterTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-reqs">
+      <div class="top">
+        <div><h2>Team requests</h2><p>Problems, time-off, and other requests raised by the team</p></div>
+      </div>
+      <div class="card">
+        <h3>Checked in today</h3>
+        <div id="checkinsToday"><p class="chat-placeholder">Loading…</p></div>
+      </div>
+      <div class="card">
+        <h3>Open requests</h3>
+        <table><thead><tr>
+          <th>From</th><th>Type</th><th>Details</th><th>Received</th><th></th>
+        </tr></thead><tbody id="reqsOpenTbl"></tbody></table>
+      </div>
+      <div class="card">
+        <h3>Resolved</h3>
+        <table><thead><tr>
+          <th>From</th><th>Type</th><th>Details</th><th>Resolution</th>
+        </tr></thead><tbody id="reqsResolvedTbl"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ================= SEWING OPERATOR ================= -->
+    <section class="screen" id="s-mystation">
+      <div class="top">
+        <div><h2>My station</h2><p>Today's assignment on Line-07</p></div>
+      </div>
+      <div class="card">
+        <div class="op-hero">
+          <div class="stbig"><b id="myStId">—</b><span>Station</span></div>
+          <div class="op-hero-meta">
+            <div><b>Machine</b><span id="myStMc"></span></div>
+            <div><b>Operation</b><span id="myStOps" class="mono"></span></div>
+            <div><b>Target pace</b><span id="myStTarget" class="mono"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Today's pace</h3>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div><span class="v num" id="myStMade">0</span> <span style="color:var(--mute)">pcs made</span></div>
+          <div style="color:var(--mute);font-size:13px">Target <span class="mono" id="myStTarget2">0</span> pcs</div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="myStFill" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <p class="note"><b>Why this station?</b> The line-balancing plan assigns operators to stations based on machine-type efficiency and skill grade, so the station shown here can change if the plan is re-run.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0">Today</h3>
+            <p class="note" id="checkinStatus" style="margin:4px 0 0">Checking…</p>
+          </div>
+          <button class="btn-s pri" id="checkinBtn">Check in</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h3 style="margin:0">My requests</h3>
+          <button class="btn-s" id="newRequestBtn">New request</button>
+        </div>
+        <div id="myRequestsList"><p class="chat-placeholder">Loading…</p></div>
+      </div>
+    </section>
+
+    <section class="screen" id="s-myperf">
+      <div class="top">
+        <div><h2>My performance</h2><p>Efficiency by machine type · 1.00 is standard pace</p></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Skill by machine</h3>
+          <div id="perfBars"></div>
+        </div>
+        <div class="card">
+          <h3>Pieces produced — last 6 working days</h3>
+          <div id="weeklyChart"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="s-myschedule">
+      <div class="top">
+        <div><h2>My schedule</h2><p>Today's shift, Line-07</p></div>
+      </div>
+      <div class="card">
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-time">08:00 – 10:15</div><div class="tl-label">Sewing — Station ST3</div></div>
+          <div class="tl-item"><div class="tl-time">10:15 – 10:25</div><div class="tl-label">Break</div></div>
+          <div class="tl-item"><div class="tl-time">10:25 – 13:00</div><div class="tl-label">Sewing — Station ST3</div></div>
+          <div class="tl-item"><div class="tl-time">13:00 – 13:40</div><div class="tl-label">Lunch</div></div>
+          <div class="tl-item"><div class="tl-time">13:40 – 15:50</div><div class="tl-label">Sewing — Station ST3</div></div>
+          <div class="tl-item"><div class="tl-time">15:50 – 16:00</div><div class="tl-label">Line clean-down &amp; handover</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FACTORY MANAGEMENT ================= -->
+    <section class="screen" id="s-exec">
+      <div class="top">
+        <div><h2>Executive summary</h2><p>Unit 2 · all active lines</p></div>
+        <div class="acts"><button class="btn-s" id="execExport">Export report</button></div>
+      </div>
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k">Active lines</div><div class="v num" id="execLines">0</div></div>
+        <div class="kpi"><div class="k">Total output today</div><div class="v num" id="execPcs">0</div></div>
+        <div class="kpi"><div class="k">Average efficiency</div><div class="v num" id="execEff">0<small>%</small></div></div>
+        <div class="kpi"><div class="k">Lines at risk</div><div class="v num" id="execRisk">0</div></div>
+      </div>
+      <div class="card">
+        <h3>Output by line</h3>
+        <div id="execChart"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="s-lines">
+      <div class="top">
+        <div><h2>All lines</h2><p>Unit 2 · every active line in the factory</p></div>
+      </div>
+      <div class="card">
+        <table><thead><tr>
+          <th>Line</th><th>Style</th><th class="n">Efficiency</th><th class="n">Output</th><th class="n">Target</th><th>Status</th>
+        </tr></thead><tbody id="linesTbl"></tbody></table>
+      </div>
+      <div class="card">
+        <p class="note"><b>Efficiency, output and target are still simulated.</b> The backend's <code class="mono">Line</code> entity only stores identity and status today — those three numbers come from a simulation run, and the Java port of the discrete-event engine (Phase 3 of the project plan) doesn't exist yet. Once it does, <code class="mono">Simulation</code> rows attached to each line replace this mock data.</p>
+      </div>
+
+      <div class="card">
+        <h3>Add a production line</h3>
+        <div class="ctrls" style="margin-bottom:14px">
+          <div class="ctl" style="min-width:140px"><label>Line code</label>
+            <input type="text" id="newLineCode" placeholder="e.g. Line-21" maxlength="40">
+          </div>
+          <div class="ctl" style="min-width:140px"><label>Unit</label>
+            <input type="text" id="newLineUnit" placeholder="e.g. Unit 3" maxlength="60">
+          </div>
+          <div class="ctl" style="min-width:160px"><label>Target rate (pcs/hr)</label>
+            <input type="text" id="newLineRate" placeholder="e.g. 80" maxlength="6">
+          </div>
+          <div class="ctl" style="min-width:200px"><label>Starting style</label>
+            <select id="newLineStyle"><option value="">— none yet —</option></select>
+          </div>
+          <div class="ctl"><label>&nbsp;</label><button class="btn-s pri" id="addLineBtn">Add line</button></div>
+        </div>
+        <p class="login-ok" id="newLineMsg" style="display:none;margin:0"></p>
+      </div>
+    </section>
+
+    <section class="screen" id="s-orders">
+      <div class="top">
+        <div><h2>Orders</h2><p>Unit 2 · the current order book</p></div>
+      </div>
+      <div class="card">
+        <table><thead><tr>
+          <th>Order</th><th>Buyer</th><th class="n">Quantity</th><th>Due</th><th style="width:180px">Progress</th>
+        </tr></thead><tbody id="ordersTbl"></tbody></table>
+      </div>
+    </section>
+
+    <section class="screen" id="s-approvals">
+      <div class="top">
+        <div><h2>Registration requests</h2><p>New sign-ups waiting on admin approval before they can sign in</p></div>
+      </div>
+      <p class="login-ok" id="regMsg" style="display:none;margin:0 0 14px"></p>
+      <div class="card">
+        <table><thead><tr>
+          <th>Name</th><th>Email</th><th>Job title</th><th>Role</th><th>Requested</th><th></th>
+        </tr></thead><tbody id="regTbl"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ================= MESSAGES (every role) ================= -->
+    <section class="screen" id="s-chat">
+      <div class="top">
+        <div><h2>Messages</h2><p>Group channel for everyone on the line, or a direct message to one person</p></div>
+      </div>
+      <div class="card chat-panel">
+        <div class="chat-tabs">
+          <button class="chat-tab on" data-c="group">Group chat</button>
+          <button class="chat-tab" data-c="direct">Direct</button>
+        </div>
+
+        <div id="chatGroupView" class="chat-view">
+          <div id="chatGroupMessages" class="chat-messages"></div>
+          <form id="chatGroupForm" class="chat-input-row">
+            <input id="chatGroupInput" placeholder="Message everyone…" autocomplete="off" maxlength="2000">
+            <button class="chat-send" type="submit">Send</button>
+          </form>
+        </div>
+
+        <div id="chatDirectView" class="chat-view" style="display:none">
+          <div class="chat-direct-layout">
+            <div id="chatContacts" class="chat-contacts"></div>
+            <div class="chat-direct-thread">
+              <div id="chatDirectMessages" class="chat-messages">
+                <p class="chat-placeholder">Pick someone on the left to start a conversation.</p>
+              </div>
+              <form id="chatDirectForm" class="chat-input-row">
+                <input id="chatDirectInput" placeholder="Type a message…" autocomplete="off" maxlength="2000" disabled>
+                <button class="chat-send" type="submit" disabled>Send</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================ Add operation modal ============================ -->
+<div class="modal-overlay" id="opModalOverlay">
+  <div class="modal">
+    <h3>Add operation</h3>
+    <div class="field"><label for="opCode">Code</label><input id="opCode" placeholder="e.g. C03"></div>
+    <div class="field"><label for="opName">Name</label><input id="opName" placeholder="e.g. Cuff attach"></div>
+    <div class="field"><label for="opMachine">Machine</label>
+      <select id="opMachine" style="width:100%">
+        <option value="PLAIN">Plain</option>
+        <option value="OVERLOCK">Overlock</option>
+        <option value="FLATLOCK">Flatlock</option>
+        <option value="BUTTON_HOLE">Button hole</option>
+        <option value="BUTTON_ATTACH">Button attach</option>
+        <option value="IRON">Iron</option>
+        <option value="MANUAL">Manual</option>
+      </select>
+    </div>
+    <div class="field"><label for="opSmv">SMV</label><input id="opSmv" type="number" step="0.01" min="0.01" max="10" placeholder="e.g. 0.45"></div>
+    <div class="field"><label for="opGrade">Minimum grade</label><input id="opGrade" type="number" min="1" max="5" value="3"></div>
+    <div class="field"><label for="opPre">Depends on (comma-separated codes, optional)</label><input id="opPre" placeholder="e.g. S02, P01"></div>
+    <p class="login-err" id="opErr" style="display:none"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-s" id="opCancel">Cancel</button>
+      <button class="btn-s pri" id="opSubmit">Add operation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ Add operator modal ============================ -->
+<div class="modal-overlay" id="operModalOverlay">
+  <div class="modal">
+    <h3>Add operator</h3>
+    <div class="field"><label for="operCode">Code</label><input id="operCode" placeholder="e.g. OP15"></div>
+    <div class="field"><label for="operName">Name</label><input id="operName" placeholder="e.g. Nasrin"></div>
+    <div class="field"><label for="operGrade">Grade</label><input id="operGrade" type="number" min="1" max="5" value="3"></div>
+    <div class="field"><label for="operDefEff">Default efficiency</label><input id="operDefEff" type="number" step="0.01" min="0.01" max="2" placeholder="e.g. 0.80"></div>
+    <div class="field"><label for="operSkills">Skills (machine:efficiency, comma-separated, optional)</label><input id="operSkills" placeholder="e.g. PLAIN:1.05, OVERLOCK:0.90"></div>
+    <p class="login-err" id="operErr" style="display:none"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-s" id="operCancel">Cancel</button>
+      <button class="btn-s pri" id="operSubmit">Add operator</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ New request modal ============================ -->
+<div class="modal-overlay" id="requestModalOverlay">
+  <div class="modal">
+    <h3>New request</h3>
+    <div class="field"><label for="reqType">What's this about?</label>
+      <select id="reqType" style="width:100%">
+        <option value="PROBLEM_REPORT">Report a problem</option>
+        <option value="DEFECT_REPORT">Defect count</option>
+        <option value="TIME_OFF">Time off request</option>
+        <option value="SHIFT_SWAP">Shift swap</option>
+        <option value="STATION_CHANGE">Station change</option>
+        <option value="SUGGESTION">Suggestion</option>
+      </select>
+    </div>
+    <div class="field"><label for="reqDesc">Details</label>
+      <textarea id="reqDesc" rows="4" style="width:100%;resize:vertical" placeholder="e.g. Station ST3's overlock machine is skipping stitches"></textarea>
+    </div>
+    <p class="login-err" id="reqErr" style="display:none"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-s" id="reqCancel">Cancel</button>
+      <button class="btn-s pri" id="reqSubmit">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Backend connection
+   ============================================================ */
+/* Served by the Spring Boot app itself, so the API is same-origin.
+   Point this at http://localhost:8080/api only if you open the file directly. */
+const API_BASE = location.protocol.startsWith('http') ? '/api' : 'http://localhost:8080/api';
+const TOKEN_KEY = 'seamline.token';
+
+const auth = {
+  get token(){ return sessionStorage.getItem(TOKEN_KEY); },
+  set token(v){ v ? sessionStorage.setItem(TOKEN_KEY, v) : sessionStorage.removeItem(TOKEN_KEY); },
+  clear(){ this.token = null; }
+};
+
+function authHeaders(extra){
+  const h = Object.assign({}, extra || {});
+  if(auth.token) h['Authorization'] = 'Bearer ' + auth.token;
+  return h;
+}
+
+async function apiGet(path){
+  const res = await fetch(API_BASE + path, { mode:'cors', headers: authHeaders() });
+  if(!res.ok) throw new Error('GET ' + path + ' -> ' + res.status);
+  return res.json();
+}
+
+async function apiPost(path, body){
+  const res = await fetch(API_BASE + path, {
+    method:'POST', mode:'cors',
+    headers: authHeaders({'Content-Type':'application/json'}),
+    body: JSON.stringify(body)
+  });
+  let data = null;
+  try{ data = await res.json(); }catch(e){ /* non-JSON error body, ignore */ }
+  return { ok: res.ok, status: res.status, data };
+}
+
+/* The parameters on the Line simulation controls, in the shape the API wants. */
+const runParams = () => ({
+  algorithm: $('algo').value,
+  teamSize: +$('team').value,
+  bufferPerStation: +$('buf').value,
+  variability: +$('vari').value / 100,
+  seed: +$('seed').value
+});
+
+/* ============================================================
+   Data
+   ============================================================ */
+const MC={PLAIN:['Plain','var(--t-plain)'],OVERLOCK:['Overlock','var(--t-over)'],
+  FLATLOCK:['Flatlock','var(--t-flat)'],BUTTON_HOLE:['Button hole','var(--t-bh)'],
+  BUTTON_ATTACH:['Button attach','var(--t-ba)'],IRON:['Iron','var(--t-iron)'],
+  MANUAL:['Manual','var(--t-manual)']};
+
+let OPS=[
+ {id:'C01',name:'Cut panel check',smv:.30,mc:'MANUAL',g:1,pre:[]},
+ {id:'S01',name:'Shoulder join',smv:.55,mc:'OVERLOCK',g:3,pre:['C01']},
+ {id:'S02',name:'Shoulder topstitch',smv:.45,mc:'PLAIN',g:3,pre:['S01']},
+ {id:'P01',name:'Placket make',smv:.95,mc:'PLAIN',g:4,pre:['C01']},
+ {id:'P02',name:'Placket attach',smv:.85,mc:'PLAIN',g:4,pre:['P01','S02']},
+ {id:'B01',name:'Collar make',smv:.80,mc:'PLAIN',g:4,pre:['C01']},
+ {id:'B02',name:'Collar join',smv:.75,mc:'PLAIN',g:4,pre:['B01','P02']},
+ {id:'L01',name:'Sleeve attach',smv:.90,mc:'OVERLOCK',g:4,pre:['S02']},
+ {id:'L02',name:'Armhole topstitch',smv:.60,mc:'FLATLOCK',g:3,pre:['L01']},
+ {id:'S03',name:'Side seam',smv:1.10,mc:'OVERLOCK',g:4,pre:['L02']},
+ {id:'C02',name:'Sleeve hem',smv:.50,mc:'FLATLOCK',g:3,pre:['S03']},
+ {id:'H01',name:'Bottom hem',smv:.65,mc:'PLAIN',g:3,pre:['S03']},
+ {id:'BH1',name:'Button hole',smv:.35,mc:'BUTTON_HOLE',g:3,pre:['B02','H01']},
+ {id:'BA1',name:'Button attach',smv:.40,mc:'BUTTON_ATTACH',g:3,pre:['BH1']},
+ {id:'T01',name:'Thread trim',smv:.70,mc:'MANUAL',g:1,pre:['BA1','C02']},
+ {id:'I01',name:'Iron and fold',smv:.85,mc:'IRON',g:2,pre:['T01']}];
+let TSMV=OPS.reduce((s,o)=>s+o.smv,0);
+
+let TEAM=[
+ {id:'OP01',name:'Rahima',g:4,def:.85,eff:{PLAIN:1.05,OVERLOCK:.80}},
+ {id:'OP02',name:'Shirin',g:4,def:.80,eff:{OVERLOCK:1.10,FLATLOCK:.90}},
+ {id:'OP03',name:'Nasima',g:5,def:.90,eff:{PLAIN:1.15,BUTTON_HOLE:.95}},
+ {id:'OP04',name:'Parvin',g:3,def:.75,eff:{FLATLOCK:1.00,MANUAL:1.10}},
+ {id:'OP05',name:'Jesmin',g:4,def:.85,eff:{PLAIN:.95,OVERLOCK:1.00}},
+ {id:'OP06',name:'Ruma',g:3,def:.70,eff:{MANUAL:1.20,IRON:1.00}},
+ {id:'OP07',name:'Sultana',g:5,def:.95,eff:{PLAIN:1.20,FLATLOCK:.85}},
+ {id:'OP08',name:'Momena',g:4,def:.80,eff:{OVERLOCK:1.05,PLAIN:.90}},
+ {id:'OP09',name:'Fatema',g:3,def:.75,eff:{BUTTON_ATTACH:1.10,BUTTON_HOLE:1.05}},
+ {id:'OP10',name:'Rekha',g:4,def:.85,eff:{PLAIN:1.00,IRON:.95}},
+ {id:'OP11',name:'Anowara',g:3,def:.70,eff:{FLATLOCK:.95,MANUAL:1.05}},
+ {id:'OP12',name:'Halima',g:5,def:.90,eff:{OVERLOCK:1.15,PLAIN:1.00}},
+ {id:'OP13',name:'Sabina',g:4,def:.80,eff:{PLAIN:1.05,BUTTON_ATTACH:.90}},
+ {id:'OP14',name:'Morjina',g:3,def:.75,eff:{IRON:1.15,MANUAL:1.00}}];
+const eff=(o,m)=>o.eff[m]!==undefined?o.eff[m]:o.def;
+
+/* Local mock data — used as a fallback whenever the backend isn't reachable,
+   and as the source of metrics the backend doesn't compute yet (see
+   loadLinesFromApi). */
+const LINES=[
+ {id:'Line-07',style:"Men's Polo Shirt",eff:86.4,out:612,target:624,status:'ok'},
+ {id:'Line-03',style:'Ladies Woven Blouse',eff:79.1,out:540,target:600,status:'mid'},
+ {id:'Line-11',style:"Kids' T-Shirt",eff:91.2,out:705,target:700,status:'ok'},
+ {id:'Line-14',style:"Men's Chino Trouser",eff:68.7,out:410,target:580,status:'bad'}];
+
+const ORDERS=[
+ {id:'PO-24118',buyer:'Nordic Basics AB',qty:24000,due:'2026-08-22',done:62},
+ {id:'PO-24122',buyer:'Baltic Wear Co.',qty:18000,due:'2026-08-19',done:81},
+ {id:'PO-24130',buyer:'Meridian Apparel',qty:30000,due:'2026-09-02',done:24},
+ {id:'PO-24135',buyer:'Nordic Basics AB',qty:12000,due:'2026-08-15',done:95}];
+
+/* ============================================================
+   Backend-aware loaders — Lines and Orders are the two screens with a
+   real, wired-up backend entity behind them (see seamline-backend/).
+   Everything else in this file is still simulated in the browser.
+   ============================================================ */
+/* The style bulletin and the roster come from the backend and replace the
+   seed data above, so every Industrial Engineer screen draws what the database
+   actually holds. */
+async function loadStyleFromApi(styleCode){
+  const style = await apiGet('/styles/' + encodeURIComponent(styleCode || 'POLO-MEN'));
+  OPS = style.operations.map(o => ({
+    id:o.code, name:o.name, smv:o.smv, mc:o.machine, g:o.minGrade, pre:o.predecessors
+  }));
+  TSMV = OPS.reduce((a,o)=>a+o.smv, 0);
+  const head = document.querySelector('#s-style .top p');
+  if(head) head.textContent = style.name + ' \u00b7 ' + style.operationCount +
+    ' operations \u00b7 ' + style.totalSmv.toFixed(2) + ' SMV';
+  return style;
+}
+
+async function loadRosterFromApi(){
+  const roster = await apiGet('/operators');
+  TEAM = roster.map(o => ({
+    id:o.code, name:o.name, g:o.grade, def:o.defaultEfficiency, eff:o.skills || {}
+  }));
+  return TEAM;
+}
+
+async function loadLinesFromApi(connIds){
+  try{
+    const apiLines = await apiGet('/lines');
+    setConn(connIds, true, apiLines.length + ' line(s) loaded from the backend');
+    const statusMap = {HEALTHY:'ok', WATCH:'mid', AT_RISK:'bad'};
+    return apiLines.map(l => ({
+      id: l.lineCode,
+      style: l.style,
+      eff: l.lineEfficiency,
+      out: l.outputThisShift,
+      target: l.targetPiecesPerShift,
+      status: statusMap[l.status] || 'mid'
+    }));
+  }catch(e){
+    setConn(connIds, false, 'Backend not reachable \u2014 showing local mock data');
+    return LINES;
+  }
+}
+
+async function loadOrdersFromApi(connIds){
+  try{
+    const apiOrders = await apiGet('/orders');
+    setConn(connIds, true, apiOrders.length + ' order(s) loaded from the backend');
+    return apiOrders.map(o => ({
+      id:o.orderCode, buyer:o.buyer, qty:o.quantity, due:o.dueDate, done:o.progress
+    }));
+  }catch(e){
+    setConn(connIds, false, 'Backend not reachable \u2014 showing local mock data');
+    return ORDERS;
+  }
+}
+
+function setConn(ids, live, label){
+  (ids||[]).forEach(prefix=>{
+    const box=$(prefix+'Conn'), lbl=$(prefix+'ConnLabel');
+    if(!box) return;
+    box.classList.toggle('live', live);
+    box.classList.toggle('down', !live);
+    if(lbl) lbl.textContent=label;
+  });
+}
+
+/* ============================================================
+   Sequencing + balancing
+   ============================================================ */
+function topo(){const ind={},suc={};OPS.forEach(o=>{ind[o.id]=o.pre.length;suc[o.id]=[]});
+  OPS.forEach(o=>o.pre.forEach(p=>suc[p].push(o.id)));
+  const rdy=OPS.filter(o=>!ind[o.id]).map(o=>o.id),out=[];
+  while(rdy.length){const id=rdy.shift();out.push(OPS.find(o=>o.id===id));
+    suc[id].forEach(s=>{if(--ind[s]===0)rdy.push(s)})}
+  return out}
+
+/* Ranked positional weight, line balancing and the discrete-event engine all
+   live in the Java backend now (service/balancing and service/simulation).
+   The topological sort above stays because the precedence graph on the Style
+   breakdown screen needs to lay operations out in layers. */
+
+/* ============================================================
+   Charts — hand-built SVG, no libraries
+   ============================================================ */
+const svgNS='http://www.w3.org/2000/svg';
+function el(n,a){const e=document.createElementNS(svgNS,n);for(const k in a)e.setAttribute(k,a[k]);return e}
+
+function barChart(host,vals,labels,target){
+  host.innerHTML='';
+  const W=host.clientWidth||620,H=232,pl=40,pr=10,pt=14,pb=28;
+  const iw=W-pl-pr,ih=H-pt-pb;
+  const max=Math.max(target*1.35,...vals)||1;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',height:H});
+  for(let i=0;i<=4;i++){const y=pt+ih-ih*i/4;
+    s.appendChild(el('line',{x1:pl,x2:W-pr,y1:y,y2:y,stroke:'var(--floor)','stroke-width':1}));
+    const t=el('text',{x:pl-8,y:y+4,'text-anchor':'end',fill:'var(--mute)','font-size':10,
+      'font-family':'IBM Plex Mono'});t.textContent=Math.round(max*i/4);s.appendChild(t)}
+  const bw=iw/vals.length;
+  vals.forEach((v,i)=>{
+    const h=ih*v/max,x=pl+bw*i+bw*.22,w=bw*.56,y=pt+ih-h;
+    s.appendChild(el('rect',{x,y,width:w,height:Math.max(h,1),rx:3,
+      fill:v>=target?'var(--indigo)':'var(--block)',opacity:v>=target?.9:.85}));
+    const t=el('text',{x:x+w/2,y:H-9,'text-anchor':'middle',fill:'var(--mute)','font-size':10,
+      'font-family':'IBM Plex Mono'});t.textContent=labels[i];s.appendChild(t);
+    const n=el('text',{x:x+w/2,y:y-5,'text-anchor':'middle',fill:'var(--slate)','font-size':10,
+      'font-family':'IBM Plex Mono'});n.textContent=v;s.appendChild(n)});
+  const ty=pt+ih-ih*target/max;
+  s.appendChild(el('line',{x1:pl,x2:W-pr,y1:ty,y2:ty,stroke:'var(--ink)','stroke-width':1.4,
+    'stroke-dasharray':'6 5'}));
+  const tl=el('text',{x:W-pr,y:ty-6,'text-anchor':'end',fill:'var(--ink)','font-size':10,
+    'font-weight':600,'font-family':'Inter'});tl.textContent='Target '+target+'/hr';s.appendChild(tl);
+  host.appendChild(s);
+}
+
+function stackChart(host,rows){
+  host.innerHTML='';
+  const W=host.clientWidth||330,rowH=26,H=rows.length*rowH+8;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',height:H});
+  const lw=74,bw=W-lw-46;
+  rows.forEach((r,i)=>{
+    const y=i*rowH+4;
+    const t=el('text',{x:0,y:y+13,fill:'var(--slate)','font-size':11.5,'font-family':'Inter'});
+    t.textContent=r.k;s.appendChild(t);
+    s.appendChild(el('rect',{x:lw,y:y+3,width:bw,height:13,rx:3,fill:'var(--floor)'}));
+    s.appendChild(el('rect',{x:lw,y:y+3,width:Math.max(bw*r.v/100,2),height:13,rx:3,fill:r.c}));
+    const n=el('text',{x:W,y:y+14,'text-anchor':'end',fill:'var(--ink)','font-size':11,
+      'font-family':'IBM Plex Mono','font-weight':500});n.textContent=r.v.toFixed(1)+'%';
+    s.appendChild(n)});
+  host.appendChild(s);
+}
+
+function groupChart(host,items){
+  host.innerHTML='';
+  const W=host.clientWidth||900,H=210,pl=44,pb=42,pt=16;
+  const ih=H-pt-pb,iw=W-pl-14,max=Math.max(...items.map(i=>i.v))*1.15||1;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',height:H});
+  for(let i=0;i<=3;i++){const y=pt+ih-ih*i/3;
+    s.appendChild(el('line',{x1:pl,x2:W-14,y1:y,y2:y,stroke:'var(--floor)'}));
+    const t=el('text',{x:pl-8,y:y+4,'text-anchor':'end',fill:'var(--mute)','font-size':10,
+      'font-family':'IBM Plex Mono'});t.textContent=Math.round(max*i/3);s.appendChild(t)}
+  const bw=iw/items.length;
+  items.forEach((it,i)=>{
+    const h=ih*it.v/max,x=pl+bw*i+bw*.2,w=bw*.6,y=pt+ih-h;
+    s.appendChild(el('rect',{x,y,width:w,height:Math.max(h,1),rx:4,fill:it.c}));
+    const n=el('text',{x:x+w/2,y:y-6,'text-anchor':'middle',fill:'var(--ink)','font-size':11.5,
+      'font-weight':600,'font-family':'IBM Plex Mono'});n.textContent=it.v;s.appendChild(n);
+    it.k.split('\n').forEach((ln,j)=>{
+      const t=el('text',{x:x+w/2,y:H-26+j*13,'text-anchor':'middle',fill:'var(--slate)','font-size':10.5,
+        'font-family':'Inter'});t.textContent=ln;s.appendChild(t)})});
+  host.appendChild(s);
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const cfgOf=()=>({seed:+$('seed').value,buffer:+$('buf').value,vari:+$('vari').value/100});
+
+/* ---- Industrial Engineer: dashboard ---- */
+async function renderDash(rerun){
+  const d = rerun
+    ? (await apiPost('/dashboard/rerun', runParams())).data
+    : await apiGet('/dashboard');
+  if(!d) return;
+  DASH = d;
+
+  document.querySelector('#s-dash h2').textContent = d.line.code + ' \u00b7 ' + d.style.name;
+  const sub = document.querySelector('#s-dash .top p');
+  if(sub) sub.textContent = d.run.algorithmLabel + ' \u00b7 ' + d.run.teamSize +
+    ' operators \u00b7 ' + d.run.stationCount + ' stations \u00b7 seed ' + d.run.seed;
+
+  const diff = d.kpis.piecesThisShift - d.kpis.targetPieces;
+  $('kPcs').textContent = d.kpis.piecesThisShift;
+  $('kPcsD').textContent = (diff >= 0 ? '+' : '') + diff + ' vs target';
+  $('kPcsD').className = 'd ' + (diff >= 0 ? 'up' : 'down');
+  $('kRate').innerHTML = d.kpis.outputRatePerHour.toFixed(0) + '<small>pcs/hr</small>';
+  $('kEff').innerHTML = d.kpis.lineEfficiency.toFixed(1) + '<small>%</small>';
+  $('kLoss').innerHTML = d.kpis.balanceLoss.toFixed(1) + '<small>%</small>';
+
+  $('alertT').textContent = d.alert.title;
+  $('alertP').textContent = d.alert.detail;
+
+  barChart($('chartHour'), d.hourly.map(h=>h.pieces),
+    ['08','09','10','11','12','13','14','15'], d.line.targetRatePerHour);
+
+  const colour = {Working:'var(--run)', Blocked:'var(--block)', Starved:'var(--starve)', Idle:'var(--edge)'};
+  stackChart($('chartLoss'), d.lossBreakdown.map(x=>({k:x.label, v:x.percent, c:colour[x.label]})));
+
+  $('dashTbl').innerHTML = d.stations.map(x=>`<tr>
+    <td class="mono">${x.station}</td>
+    <td><span class="chip"><span class="sw" style="background:${MC[x.machine][1]}"></span>${x.machineLabel}</span></td>
+    <td>${x.operator}</td><td class="mono">${x.operations}</td>
+    <td class="n">${x.minutesPerPiece.toFixed(2)}</td><td class="n">${x.utilisation.toFixed(1)}%</td>
+    <td class="n">${x.blockedMinutes.toFixed(0)}</td><td class="n">${x.starvedMinutes.toFixed(0)}</td>
+    <td>${statusPill(x.status, x.statusLabel)}</td></tr>`).join('');
+
+  renderMyProposals();
+}
+
+let DASH = null;
+
+function statusPill(status, label){
+  const cls = status === 'BOTTLENECK' ? 'bad' : status === 'HEALTHY' ? 'ok' : 'mid';
+  return '<span class="pill ' + cls + '">' + label + '</span>';
+}
+
+/* ---- Industrial Engineer: propose a line-plan change ---- */
+/* A real request now, not a hardcoded row: it's saved via POST /api/approvals
+   and shows up on the Supervisor's Approvals screen for a real decision. */
+async function renderMyProposals(){
+  try{
+    const rows = await apiGet('/approvals/mine');
+    $('myPropTbl').innerHTML = rows.length ? rows.map(a=>`
+      <tr>
+        <td>${escapeHtml(a.title)}</td>
+        <td>${escapeHtml(a.projectedImpact)}</td>
+        <td>${pillFor(a.status)}</td>
+      </tr>`).join('')
+      : '<tr><td colspan="3" style="color:var(--mute);text-align:center;padding:24px">No proposals submitted yet.</td></tr>';
+  }catch(e){ console.error(e); }
+}
+async function submitProposal(){
+  const title = $('propTitle').value.trim();
+  const impact = $('propImpact').value.trim();
+  if(!title || !impact){
+    alert('Fill in both the proposed change and its projected impact.');
+    return;
+  }
+  $('propSubmit').disabled = true;
+  $('propSubmit').textContent = 'Submitting…';
+  const res = await apiPost('/approvals', {title, projectedImpact: impact});
+  $('propSubmit').disabled = false;
+  $('propSubmit').textContent = 'Submit proposal';
+  if(!res.ok){
+    alert(res.data && res.data.message ? res.data.message : 'Could not submit that proposal.');
+    return;
+  }
+  $('propTitle').value=''; $('propImpact').value='';
+  $('propMsg').textContent = 'Sent to your supervisor for sign-off.';
+  $('propMsg').style.display='block';
+  renderMyProposals();
+}
+
+/* ---- Industrial Engineer: line simulation ---- */
+/* The plan and the shift both come from POST /api/simulation/run. The playback
+   below is a replay of that stored result, not a second simulation: the browser
+   never recomputes anything the backend already decided. */
+let SIM=null, timer=null, clock=0;
+
+async function resetLine(){
+  clearInterval(timer); timer=null; clock=0;
+  $('lineRun').textContent='Run shift';
+  const res = await apiPost('/simulation/run', runParams());
+  if(!res.ok){ $('lineEl').innerHTML='<p class="note">Could not reach the simulation API.</p>'; return; }
+  SIM = res.data;
+  buildLine();
+  paintLine();
+}
+
+function buildLine(){
+  const host=$('lineEl'); host.innerHTML='';
+  SIM.plan.stations.forEach((s,i)=>{
+    if(i){const c=document.createElement('div');c.className='conv';c.textContent='\u203a';host.appendChild(c)}
+    const d=document.createElement('div'); d.className='stn';
+    d.innerHTML=`<div class="buf" id="bf${i}"></div>
+      <div class="box" id="bx${i}">
+        <div class="sid">${s.code}</div>
+        <div class="sop">${s.operations.join('+')}</div>
+        <div class="smc" style="color:${MC[s.machine][1]}">${s.machineLabel}</div>
+        <div class="snm">${s.operatorName}</div>
+        <div class="stm">${s.minutesPerPiece.toFixed(2)} min/pc</div>
+        <div class="ub"><div class="uf" id="uf${i}"></div></div>
+      </div>`;
+    host.appendChild(d)});
+}
+
+/* Pieces at any minute, read off the backend's hourly output. */
+function piecesAt(minute){
+  const h=SIM.result.hourlyOutput, hour=Math.floor(minute/60);
+  if(hour<=0) return Math.round((h[0]||0)*minute/60);
+  const before=h[hour-1]||0, current=h[Math.min(hour,h.length-1)]||before;
+  return Math.round(before+(current-before)*((minute-hour*60)/60));
+}
+
+function paintLine(){
+  const shift=SIM.parameters.shiftMinutes, p=Math.min(1, clock/shift);
+  SIM.plan.stations.forEach((s,i)=>{
+    const bottleneck = s.status==='BOTTLENECK' && clock>30;
+    const state = s.status==='STARVED' ? 'starved'
+      : (s.blockedMinutes > s.starvedMinutes && s.blockedMinutes > 20) ? 'blocked' : 'working';
+    $('bx'+i).className='box '+(clock>0?state:'')+(bottleneck?' bn':'');
+
+    const cap=i?SIM.parameters.bufferPerStation:6;
+    const filled=Math.round(cap*Math.min(1, s.blockedMinutes/shift*4)*p);
+    let dots=''; for(let k=0;k<cap;k++) dots+=`<span class="bd${k<filled?' f':''}"></span>`;
+    $('bf'+i).innerHTML=dots;
+
+    $('uf'+i).style.width=Math.min(100, s.utilisation*Math.min(1, p*1.15)).toFixed(0)+'%';
+  });
+  const pieces=clock>0?piecesAt(clock):0;
+  $('lClock').innerHTML=clock.toFixed(0)+`<small>/${shift} min</small>`;
+  $('lPcs').textContent=pieces;
+  $('lRate').innerHTML=(pieces/Math.max(clock,1)*60).toFixed(0)+'<small>pcs/hr</small>';
+  $('lCyc').innerHTML=SIM.plan.cycleTimeMinutes.toFixed(2)+'<small>min/pc</small>';
+}
+
+function runLine(){
+  if(!SIM){ resetLine(); return; }
+  if(timer){ clearInterval(timer); timer=null; $('lineRun').textContent='Resume'; return; }
+  if(clock>=SIM.parameters.shiftMinutes) clock=0;
+  $('lineRun').textContent='Pause';
+  timer=setInterval(()=>{
+    clock=Math.min(SIM.parameters.shiftMinutes, clock + (+$('spd').value));
+    paintLine();
+    if(clock>=SIM.parameters.shiftMinutes){
+      clearInterval(timer); timer=null; $('lineRun').textContent='Run shift';
+      $('lPcs').textContent=SIM.result.piecesProduced;
+      $('lRate').innerHTML=SIM.result.outputRatePerHour.toFixed(0)+'<small>pcs/hr</small>';
+    }
+  },60);
+}
+
+/* ---- Industrial Engineer: style ---- */
+function renderStyle(){
+  const ord=topo(),depth={};
+  ord.forEach(o=>{depth[o.id]=o.pre.length?Math.max(...o.pre.map(p=>depth[p]))+1:0});
+  const layers={};ord.forEach(o=>{(layers[depth[o.id]]=layers[depth[o.id]]||[]).push(o)});
+  const cols=Object.keys(layers).length,CW=96,RH=62;
+  const maxR=Math.max(...Object.values(layers).map(a=>a.length));
+  const W=cols*CW+40,H=maxR*RH+30,pos={};
+  Object.entries(layers).forEach(([d,arr])=>arr.forEach((o,i)=>{
+    pos[o.id]={x:20+d*CW,y:16+i*RH+(maxR-arr.length)*RH/2}}));
+
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H});
+  OPS.forEach(o=>o.pre.forEach(p=>{
+    const a=pos[p],b=pos[o.id];
+    s.appendChild(el('path',{d:`M${a.x+72} ${a.y+17} C${a.x+92} ${a.y+17},${b.x-16} ${b.y+17},${b.x} ${b.y+17}`,
+      fill:'none',stroke:'var(--edge)','stroke-width':1.4}))}));
+  OPS.forEach(o=>{const p=pos[o.id];
+    const g=el('g',{});
+    g.appendChild(el('rect',{x:p.x,y:p.y,width:72,height:34,rx:6,fill:'var(--paper)',
+      stroke:MC[o.mc][1],'stroke-width':1.5}));
+    const t1=el('text',{x:p.x+8,y:p.y+14,'font-size':11,'font-weight':600,
+      'font-family':'IBM Plex Mono',fill:'var(--ink)'});t1.textContent=o.id;g.appendChild(t1);
+    const t2=el('text',{x:p.x+8,y:p.y+26,'font-size':9.5,'font-family':'IBM Plex Mono',
+      fill:'var(--mute)'});t2.textContent=o.smv.toFixed(2)+' SMV';g.appendChild(t2);
+    s.appendChild(g)});
+  $('dag').innerHTML='';$('dag').appendChild(s);
+
+  $('dagLegend').innerHTML=Object.entries(MC).map(([k,v])=>
+    `<span><i style="background:${v[1]}"></i>${v[0]}</span>`).join('');
+
+  $('opTbl').innerHTML=OPS.map(o=>`<tr>
+    <td class="mono">${o.id}</td><td>${o.name}</td>
+    <td><span class="chip"><span class="sw" style="background:${MC[o.mc][1]}"></span>${MC[o.mc][0]}</span></td>
+    <td class="n">${o.smv.toFixed(2)}</td><td class="n">${o.g}</td>
+    <td class="mono" style="color:var(--slate)">${o.pre.join(', ')||'—'}</td></tr>`).join('');
+}
+
+/* ---- Industrial Engineer: operators ---- */
+function renderOps(){
+  const keys=Object.keys(MC);
+  let h='<thead><tr><th></th><th class="n">Grade</th>'+
+    keys.map(k=>`<th style="text-align:center">${MC[k][0]}</th>`).join('')+'</tr></thead><tbody>';
+  TEAM.forEach(o=>{
+    h+=`<tr><td class="nm">${o.name}</td><td class="n" style="padding-right:10px">${o.g}</td>`;
+    keys.forEach(k=>{
+      const v=eff(o,k),t=Math.max(0,Math.min(1,(v-.6)/.65));
+      const bg=`color-mix(in srgb, var(--run) ${Math.round(14+86*t)}%, var(--paper))`;
+      h+=`<td><div class="cellv" style="background:${bg};color:${t>.75?'#fff':'var(--ink)'}">${v.toFixed(2)}</div></td>`});
+    h+='</tr>'});
+  $('heat').innerHTML=h+'</tbody>';
+}
+
+/* ---- Industrial Engineer: scenarios ---- */
+/* Runs only when the button is pressed, so the results stay put until the user asks for a new comparison. */
+async function renderScen(){
+  const btn = $('scenRun');
+  const seed = +$('scenSeed').value || 42;
+  btn.disabled = true; btn.textContent = 'Running…';
+  let data;
+  try {
+    data = await apiGet('/simulation/scenarios?seed=' + seed);
+  } catch (e) {
+    $('chartScen').innerHTML = '<p class="note">Comparison failed: ' + (e.message || e) + '</p>';
+    $('scenTbl').innerHTML = '';
+    return;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Run comparison';
+  }
+  const colours = ['var(--t-plain)','var(--t-iron)','var(--block)','var(--run)','var(--t-bh)'];
+
+  groupChart($('chartScen'), data.scenarios.map((sc,i)=>({
+    k: wrapLabel(sc.name), v: sc.piecesProduced, c: colours[i % colours.length]
+  })));
+
+  const best = Math.max(...data.scenarios.map(sc=>sc.piecesProduced));
+  $('scenTbl').innerHTML = data.scenarios.map(sc=>`<tr>
+    <td>${sc.name}</td>
+    <td class="n">${sc.stationCount}</td>
+    <td class="n">${sc.cycleTimeMinutes.toFixed(2)}</td>
+    <td class="n">${sc.balanceLossPercent.toFixed(1)}%</td>
+    <td class="n">${sc.piecesProduced}</td>
+    <td class="n">${sc.lineEfficiency.toFixed(1)}%</td>
+    <td>${sc.piecesProduced===best?'<span class="pill ok">Best</span>':
+      '<span class="pill mid">'+(sc.piecesProduced-best)+' pcs</span>'}</td></tr>`).join('');
+}
+
+/* Bar labels are drawn line by line, so break long scenario names in two. */
+function wrapLabel(name){
+  const words=name.split(' ');
+  if(words.length<3) return name;
+  const half=Math.ceil(words.length/2);
+  return words.slice(0,half).join(' ')+'\n'+words.slice(half).join(' ');
+}
+
+/* ---- Line Supervisor: shift overview ---- */
+async function renderShift(){
+  const d = await apiGet('/dashboard');
+  $('sKPcs').textContent = d.kpis.piecesThisShift;
+  $('sKRate').innerHTML = d.kpis.outputRatePerHour.toFixed(0)+'<small>pcs/hr</small>';
+  $('sKEff').innerHTML = d.kpis.lineEfficiency.toFixed(1)+'<small>%</small>';
+  $('sKLoss').innerHTML = d.kpis.balanceLoss.toFixed(1)+'<small>%</small>';
+
+  $('sAlertT').textContent = d.alert.title;
+  $('sAlertP').textContent = d.alert.detail;
+
+  $('shiftTbl').innerHTML = d.stations.map(x=>`<tr>
+    <td class="mono">${x.station}</td><td>${x.operator}</td>
+    <td class="n">${x.utilisation.toFixed(1)}%</td><td class="n">${x.blockedMinutes.toFixed(0)}</td>
+    <td class="n">${x.starvedMinutes.toFixed(0)}</td><td>${statusPill(x.status, x.statusLabel)}</td>
+    </tr>`).join('');
+}
+
+/* ---- Line Supervisor: approvals ---- */
+function pillFor(status){
+  if(status==='APPROVED')return '<span class="pill ok">Approved</span>';
+  if(status==='REJECTED')return '<span class="pill bad">Rejected</span>';
+  return '<span class="pill mid">Pending</span>';
+}
+async function renderApprove(){
+  try{
+    const rows = await apiGet('/approvals');
+    $('apprTbl').innerHTML = rows.length ? rows.map(a=>`
+      <tr id="appr-row-${a.id}">
+        <td>${escapeHtml(a.title)}<div style="color:var(--mute);font-size:11.5px;margin-top:2px">${escapeHtml(a.proposerName)} · ${escapeHtml(a.proposerCaption)}</div></td>
+        <td>${escapeHtml(a.projectedImpact)}</td>
+        <td>${pillFor(a.status)}</td>
+        <td><div class="appr-actions">${a.status==='PENDING'?
+          `<button class="appr-btn ok" onclick="decide(${a.id},'approve')">Approve</button>
+           <button class="appr-btn bad" onclick="decide(${a.id},'reject')">Reject</button>`:
+          `<span style="color:var(--mute);font-size:11.5px">${a.decidedByName?escapeHtml(a.decidedByName):'Resolved'}</span>`}</div></td>
+      </tr>`).join('')
+      : '<tr><td colspan="4" style="color:var(--mute);text-align:center;padding:24px">No proposals yet.</td></tr>';
+  }catch(e){ console.error(e); }
+}
+async function decide(id,action){
+  const row = document.getElementById('appr-row-'+id);
+  row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  const res = await apiPost(`/approvals/${id}/${action}`, {});
+  if(!res.ok){
+    row.querySelectorAll('button').forEach(b=>b.disabled=false);
+    alert(res.data && res.data.message ? res.data.message : 'Could not update that proposal.');
+    return;
+  }
+  renderApprove();
+}
+
+/* ---- Line Supervisor: roster ---- */
+async function renderRoster(){
+  const res = await apiPost('/simulation/run',
+    {algorithm:'rpw', teamSize:14, bufferPerStation:3, variability:0.12, seed:42});
+  const stations = res.ok ? res.data.plan.stations : [];
+  const assigned = new Map(stations.map(s=>[s.operatorCode, s]));
+
+  $('rosterTbl').innerHTML=TEAM.map(o=>{
+    const s=assigned.get(o.id);
+    return `<tr><td>${o.name}</td><td class="n">${o.g}</td>
+      <td class="mono">${s?s.code:'\u2014'}</td>
+      <td>${s?('<span class="chip"><span class="sw" style="background:'+MC[s.machine][1]+'"></span>'+s.machineLabel+'</span>'):'<span style="color:var(--mute)">Unassigned</span>'}</td>
+      <td class="n">${s?s.minutesPerPiece.toFixed(2):'\u2014'}</td></tr>`}).join('');
+}
+
+/* ---- Sewing Operator: my station ---- */
+async function renderMyStation(){
+  const res = await apiPost('/simulation/run',
+    {algorithm:'rpw', teamSize:14, bufferPerStation:3, variability:0.12, seed:42});
+  if(!res.ok) return;
+  const st = res.data.plan.stations.find(x=>x.operatorCode==='OP01') || res.data.plan.stations[0];
+  const nameOf = code => (OPS.find(o=>o.id===code)||{}).name || code;
+
+  $('myStId').textContent=st.code;
+  $('myStMc').innerHTML=`<span class="chip"><span class="sw" style="background:${MC[st.machine][1]}"></span>${st.machineLabel}</span>`;
+  $('myStOps').textContent=st.operations.map(nameOf).join(' + ');
+  $('myStTarget').textContent=st.minutesPerPiece.toFixed(2)+' min/pc';
+
+  const made=st.piecesDone, target=Math.round(res.data.parameters.shiftMinutes/st.minutesPerPiece);
+  $('myStMade').textContent=made;
+  $('myStTarget2').textContent=target;
+  $('myStFill').style.width=Math.min(100,made/Math.max(target,1)*100).toFixed(0)+'%';
+
+  refreshCheckinStatus();
+  refreshMyRequests();
+}
+
+/* ============================================================
+   Requests + daily check-in — the operator's "not just looking" actions.
+   Same apiGet/apiPost the rest of the app uses; no polling needed since
+   these only change from the operator's own clicks or a supervisor's
+   resolve, and the screen is re-rendered on every visit anyway.
+   ============================================================ */
+const REQUEST_TYPE_LABELS={
+  PROBLEM_REPORT:'Report a problem', DEFECT_REPORT:'Defect count', TIME_OFF:'Time off request',
+  SHIFT_SWAP:'Shift swap', STATION_CHANGE:'Station change', SUGGESTION:'Suggestion'
+};
+
+async function refreshCheckinStatus(){
+  try{
+    const res = await apiGet('/checkins/mine');
+    applyCheckinStatus(res);
+  }catch(e){ console.error(e); }
+}
+function applyCheckinStatus(res){
+  const btn=$('checkinBtn'), status=$('checkinStatus');
+  if(res.checkedIn){
+    btn.disabled=true; btn.textContent='Checked in';
+    status.textContent='Checked in at '+new Date(res.checkedInAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }else{
+    btn.disabled=false; btn.textContent='Check in';
+    status.textContent="You haven't checked in yet today.";
+  }
+}
+$('checkinBtn').onclick=async()=>{
+  $('checkinBtn').disabled=true;
+  const res=await apiPost('/checkins', {});
+  if(res.ok) applyCheckinStatus(res.data);
+  else $('checkinBtn').disabled=false;
+};
+
+function requestRowHtml(r){
+  const meta = r.resolved
+    ? (r.resolutionNote ? escapeHtml(r.resolutionNote) : 'Resolved'+(r.resolvedByName?' by '+escapeHtml(r.resolvedByName):''))
+    : 'Waiting for a response';
+  return `<div class="card" style="padding:12px 14px;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;gap:10px">
+      <b style="font-size:13px">${escapeHtml(REQUEST_TYPE_LABELS[r.type]||r.type)}</b>
+      ${r.resolved?'<span class="pill ok">Resolved</span>':'<span class="pill mid">Pending</span>'}
+    </div>
+    <p style="margin:6px 0;font-size:12.5px;color:var(--slate)">${escapeHtml(r.description)}</p>
+    <p style="margin:0;font-size:11px;color:var(--mute)">${meta}</p>
+  </div>`;
+}
+async function refreshMyRequests(){
+  try{
+    const rows = await apiGet('/requests/mine');
+    $('myRequestsList').innerHTML = rows.length
+      ? rows.map(requestRowHtml).join('')
+      : '<p class="chat-placeholder">No requests yet.</p>';
+  }catch(e){ console.error(e); }
+}
+
+$('newRequestBtn').onclick=()=>{
+  $('reqErr').style.display='none';
+  $('reqType').value='PROBLEM_REPORT'; $('reqDesc').value='';
+  $('requestModalOverlay').classList.add('on');
+  $('reqDesc').focus();
+};
+$('reqCancel').onclick=()=>$('requestModalOverlay').classList.remove('on');
+$('requestModalOverlay').addEventListener('click', e=>{
+  if(e.target.id==='requestModalOverlay') $('requestModalOverlay').classList.remove('on');
+});
+$('reqSubmit').onclick=async()=>{
+  const body={ type:$('reqType').value, description:$('reqDesc').value.trim() };
+  const btn=$('reqSubmit');
+  btn.disabled=true; btn.textContent='Sending…';
+  const res=await apiPost('/requests', body);
+  btn.disabled=false; btn.textContent='Send';
+  if(!res.ok){
+    $('reqErr').textContent=apiErrorMessage(res, 'Could not send that request.');
+    $('reqErr').style.display='block';
+    return;
+  }
+  $('requestModalOverlay').classList.remove('on');
+  refreshMyRequests();
+};
+
+/* ---- Supervisor / Admin: team requests + who's checked in ---- */
+async function renderTeamRequests(){
+  try{
+    const [rows, checkins] = await Promise.all([apiGet('/requests'), apiGet('/checkins/today')]);
+
+    $('checkinsToday').innerHTML = checkins.length
+      ? checkins.map(c=>`<span class="pill ok" style="margin:0 6px 6px 0;display:inline-block">${escapeHtml(c.fullName)}</span>`).join('')
+      : '<p class="chat-placeholder">No one has checked in yet today.</p>';
+
+    const open = rows.filter(r=>!r.resolved), resolved = rows.filter(r=>r.resolved);
+
+    $('reqsOpenTbl').innerHTML = open.length ? open.map(r=>`
+      <tr id="req-row-${r.id}">
+        <td>${escapeHtml(r.requesterName)}</td>
+        <td>${escapeHtml(REQUEST_TYPE_LABELS[r.type]||r.type)}</td>
+        <td style="max-width:340px">${escapeHtml(r.description)}</td>
+        <td class="mono" style="font-size:12px">${new Date(r.createdAt).toLocaleString()}</td>
+        <td><button class="appr-btn ok" onclick="resolveRequest(${r.id}, this)">Resolve</button></td>
+      </tr>`).join('')
+      : '<tr><td colspan="5" style="color:var(--mute);text-align:center;padding:24px">Nothing open.</td></tr>';
+
+    $('reqsResolvedTbl').innerHTML = resolved.length ? resolved.map(r=>`
+      <tr>
+        <td>${escapeHtml(r.requesterName)}</td>
+        <td>${escapeHtml(REQUEST_TYPE_LABELS[r.type]||r.type)}</td>
+        <td style="max-width:300px">${escapeHtml(r.description)}</td>
+        <td style="max-width:260px;color:var(--mute);font-size:12.5px">${r.resolutionNote?escapeHtml(r.resolutionNote):'—'}${r.resolvedByName?' <span style="color:var(--mute)">— '+escapeHtml(r.resolvedByName)+'</span>':''}</td>
+      </tr>`).join('')
+      : '<tr><td colspan="4" style="color:var(--mute);text-align:center;padding:24px">Nothing resolved yet.</td></tr>';
+  }catch(e){ console.error(e); }
+}
+async function resolveRequest(id, btn){
+  const row = document.getElementById('req-row-'+id);
+  row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  btn.textContent='Resolving…';
+  const note = prompt('Add a note for this resolution (optional):') || '';
+  const res = await apiPost(`/requests/${id}/resolve`, {note});
+  if(!res.ok){
+    row.querySelectorAll('button').forEach(b=>b.disabled=false);
+    btn.textContent='Resolve';
+    alert(res.data && res.data.message ? res.data.message : 'Could not resolve that request.');
+    return;
+  }
+  renderTeamRequests();
+}
+
+/* ---- Sewing Operator: my performance ---- */
+function renderMyPerf(){
+  const o=TEAM.find(t=>t.id==='OP01');
+  const keys=Object.keys(MC);
+  $('perfBars').innerHTML=keys.map(k=>{
+    const v=eff(o,k),pct=Math.min(100,Math.max(0,(v-.5)/.8*100));
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${MC[k][0]}</span><span class="mono">${v.toFixed(2)}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${MC[k][1]}"></div></div>
+    </div>`}).join('');
+  barChart($('weeklyChart'),[298,305,312,290,320,180],['Mon','Tue','Wed','Thu','Fri','Sat'],300);
+}
+
+/* ---- Factory Management: executive summary ---- */
+let EXEC_LINES=null;
+async function renderExec(){
+  const lines = await loadLinesFromApi(['exec']);
+  EXEC_LINES = lines;
+  const totalOut=lines.reduce((a,l)=>a+l.out,0);
+  const avgEff=lines.reduce((a,l)=>a+l.eff,0)/lines.length;
+  const atRisk=lines.filter(l=>l.status==='bad').length;
+  $('execPcs').textContent=totalOut;
+  $('execEff').innerHTML=avgEff.toFixed(1)+'<small>%</small>';
+  $('execLines').textContent=lines.length;
+  $('execRisk').textContent=atRisk;
+  groupChart($('execChart'),lines.map(l=>({k:l.id+'\n'+l.style,v:l.out,
+    c:l.status==='ok'?'var(--run)':l.status==='mid'?'var(--t-bh)':'var(--block)'})));
+}
+async function renderLines(){
+  const lines = await loadLinesFromApi(['lines']);
+  $('linesTbl').innerHTML=lines.map(l=>`<tr><td class="mono">${l.id}</td><td>${l.style}</td>
+    <td class="n">${l.eff.toFixed(1)}%</td><td class="n">${l.out}</td><td class="n">${l.target}</td>
+    <td>${l.status==='ok'?'<span class="pill ok">Healthy</span>':
+      l.status==='mid'?'<span class="pill mid">Watch</span>':'<span class="pill bad">At risk</span>'}</td></tr>`).join('');
+  populateNewLineStyles();
+}
+
+/* ---- Factory Management: add a production line ---- */
+let NEW_LINE_STYLES_LOADED = false;
+async function populateNewLineStyles(){
+  if(NEW_LINE_STYLES_LOADED) return;
+  try{
+    const styles = await apiGet('/styles');
+    const sel = $('newLineStyle');
+    styles.forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s.code; opt.textContent = s.name + ' (' + s.code + ')';
+      sel.appendChild(opt);
+    });
+    NEW_LINE_STYLES_LOADED = true;
+  }catch(e){ console.error(e); }
+}
+async function submitNewLine(){
+  const code = $('newLineCode').value.trim();
+  const unit = $('newLineUnit').value.trim();
+  const rate = +$('newLineRate').value;
+  const styleCode = $('newLineStyle').value;
+  if(!code || !rate || rate < 1){
+    alert('Give the line a code and a target rate of at least 1 piece/hour.');
+    return;
+  }
+  $('addLineBtn').disabled = true;
+  $('addLineBtn').textContent = 'Adding…';
+  const res = await apiPost('/lines', {code, unitName: unit, targetRatePerHour: rate, styleCode});
+  $('addLineBtn').disabled = false;
+  $('addLineBtn').textContent = 'Add line';
+  if(!res.ok){
+    alert(res.data && res.data.message ? res.data.message : 'Could not add that line.');
+    return;
+  }
+  $('newLineCode').value=''; $('newLineUnit').value=''; $('newLineRate').value='';
+  $('newLineStyle').value='';
+  $('newLineMsg').textContent = res.data.lineCode + ' added. It will show up for every role once a shift has been simulated on it.';
+  $('newLineMsg').style.display='block';
+  renderLines();
+}
+async function renderOrders(){
+  const orders = await loadOrdersFromApi(['orders']);
+  $('ordersTbl').innerHTML=orders.map(o=>`<tr><td class="mono">${o.id}</td><td>${o.buyer}</td>
+    <td class="n">${(+o.qty).toLocaleString()}</td><td class="mono">${o.due}</td>
+    <td><div class="linebar"><div class="track"><div class="fill" style="width:${o.done}%;background:${
+      o.done>80?'var(--run)':o.done>40?'var(--t-plain)':'var(--t-bh)'}"></div></div>
+      <span class="mono" style="font-size:11.5px">${o.done}%</span></div></td></tr>`).join('');
+}
+
+/* ---- Admin: registration requests ---- */
+/* Names/emails/titles here come straight from a public sign-up form, so they're
+   untrusted input rendered into the admin's own authenticated page — escape them. */
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const NO_PENDING_ROW = '<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:24px">No pending requests.</td></tr>';
+
+async function renderRegistrations(){
+  $('regMsg').style.display='none';
+  const rows = await apiGet('/admin/registrations');
+  $('regTbl').innerHTML = rows.length ? rows.map(r=>`
+    <tr id="reg-row-${r.id}">
+      <td>${escapeHtml(r.fullName)}<div style="color:var(--mute);font-size:11.5px;margin-top:2px">${escapeHtml(r.employeeId)}</div></td>
+      <td>${escapeHtml(r.email)}${r.phone?'<div style="color:var(--mute);font-size:11.5px;margin-top:2px">'+escapeHtml(r.phone)+'</div>':''}</td>
+      <td>${escapeHtml(r.jobTitle||'')}</td>
+      <td>${escapeHtml(r.roleLabel)}</td>
+      <td class="mono" style="font-size:12px">${new Date(r.requestedAt).toLocaleString()}</td>
+      <td><div class="appr-actions" id="reg-actions-${r.id}">
+        <button class="appr-btn ok" onclick="decideRegistration(${r.id},'approve',this)">Approve</button>
+        <button class="appr-btn bad" onclick="decideRegistration(${r.id},'reject',this)">Reject</button>
+      </div></td>
+    </tr>`).join('')
+    : NO_PENDING_ROW;
+}
+
+/* Instant feedback: lock the row's buttons the moment you click, then drop the row
+   and show a confirmation banner as soon as the server confirms — no full re-fetch,
+   so approving doesn't wait on anything slower than the approve call itself
+   (the notification email sends in the background on the server, not before it replies). */
+async function decideRegistration(id, action, btn){
+  const actions = document.getElementById('reg-actions-'+id);
+  actions.querySelectorAll('button').forEach(b=>b.disabled=true);
+  btn.textContent = action==='approve' ? 'Approving…' : 'Rejecting…';
+
+  const res = await apiPost(`/admin/registrations/${id}/${action}`, {});
+  if(!res.ok){
+    actions.querySelectorAll('button').forEach(b=>b.disabled=false);
+    btn.textContent = action==='approve' ? 'Approve' : 'Reject';
+    alert(res.data && res.data.message ? res.data.message : 'Could not update that request.');
+    return;
+  }
+
+  const row = document.getElementById('reg-row-'+id);
+  if(row) row.remove();
+  if(!$('regTbl').querySelector('tr')) $('regTbl').innerHTML = NO_PENDING_ROW;
+
+  $('regMsg').textContent = action==='approve'
+    ? 'Approved — the applicant has been emailed and can now sign in.'
+    : 'Request rejected.';
+  $('regMsg').style.display='block';
+}
+
+/* ============================================================
+   Stakeholder roles
+   ============================================================ */
+const ROLES={
+  ie:{
+    title:'Industrial Engineer', person:'Farhana Akter', sub:'Industrial Engineer · Line-07',
+    blurb:'Plans the line balance, runs shift simulations, and compares scenarios before anything changes on the floor.',
+    can:['Build and validate the style’s operation breakdown','Run line-balancing algorithms and compare their plans',
+      'Simulate a full shift and identify the bottleneck station','Compare what-if scenarios under identical random seeds'],
+    nav:[{k:'dash',l:'Dashboard'},{k:'line',l:'Line simulation'},{k:'style',l:'Style breakdown'},{k:'ops',l:'Operators'},{k:'scen',l:'Scenarios'},{k:'chat',l:'Messages'}]
+  },
+  sup:{
+    title:'Line Supervisor', person:'Kamal Hossain', sub:'Production Supervisor · Line-07',
+    blurb:'Monitors the live shift, watches for bottleneck alerts, and signs off on plan changes the engineer proposes.',
+    can:['Monitor real-time shift KPIs and bottleneck alerts','Review per-station utilisation, blocking and starvation',
+      'Approve or reject proposed line-plan changes','View the operator roster and today’s station assignments'],
+    nav:[{k:'shift',l:'Shift overview'},{k:'approve',l:'Approvals'},{k:'roster',l:'Team roster'},{k:'reqs',l:'Team requests'},{k:'chat',l:'Messages'}]
+  },
+  op:{
+    title:'Sewing Operator', person:'Rahima Begum', sub:'Machine Operator · Line-07',
+    blurb:'Sees only what’s relevant to their own bench: today’s station, pace against target, and their schedule.',
+    can:['View today’s assigned station and operation','Track personal output against the target pace',
+      'See personal efficiency by machine type','View today’s shift schedule and breaks'],
+    nav:[{k:'mystation',l:'My station'},{k:'myperf',l:'My performance'},{k:'myschedule',l:'My schedule'},{k:'chat',l:'Messages'}]
+  },
+  mgmt:{
+    title:'Factory Management', person:'S. M. Rezaul Karim', sub:'Production Director · Unit 2',
+    blurb:'Compares output and efficiency across every line in the unit and tracks orders against their due dates.',
+    can:['Compare efficiency and output across all lines','See how many lines are healthy vs. at risk',
+      'Track order progress against buyer deadlines','Access the executive summary in one screen'],
+    nav:[{k:'exec',l:'Executive summary'},{k:'lines',l:'All lines'},{k:'orders',l:'Orders'},{k:'approvals',l:'Registrations'},{k:'reqs',l:'Team requests'},{k:'chat',l:'Messages'}]
+  }
+};
+/* Which workspace a signed-in account lands in, keyed by the backend's Role enum. */
+const ROLE_KEY_BY_BACKEND={
+  INDUSTRIAL_ENGINEER:'ie', SUPERVISOR:'sup', OPERATOR:'op', ADMIN:'mgmt'
+};
+let CURRENT_USER=null;
+
+const RENDER={
+  dash:renderDash, line:resetLine, style:renderStyle, ops:renderOps, scen:()=>{},
+  shift:renderShift, approve:renderApprove, roster:renderRoster,
+  mystation:renderMyStation, myperf:renderMyPerf, myschedule:()=>{},
+  exec:renderExec, lines:renderLines, orders:renderOrders, approvals:renderRegistrations,
+  reqs:renderTeamRequests, chat:renderChatScreen
+};
+
+function buildSidebar(roleKey){
+  const r=ROLES[roleKey];
+  const who = CURRENT_USER ? {name:CURRENT_USER.fullName, sub:CURRENT_USER.caption} : {name:r.person, sub:r.sub};
+  $('who').innerHTML=`<b>${who.name}</b>${who.sub}`;
+  const nav=$('nav');
+  nav.innerHTML=r.nav.map((n,i)=>`<button class="${i===0?'on':''}" data-s="${n.k}"><i></i>${n.l}</button>`).join('');
+  nav.querySelectorAll('button').forEach(b=>b.onclick=()=>selectSection(b.dataset.s));
+  selectSection(r.nav[0].k);
+}
+function selectSection(key){
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.s===key));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const scr=$('s-'+key);if(scr)scr.classList.add('on');
+  if(key!=='chat') stopChatPolling();
+  if(RENDER[key]) Promise.resolve(RENDER[key]()).catch(screenError);
+}
+
+/* Every screen now depends on the API, so one place handles a dead token. */
+function screenError(err){
+  console.error(err);
+  if(String(err && err.message).includes('401')){
+    auth.clear();
+    document.body.classList.remove('theme-landing');
+    $('app').classList.remove('on');
+    $('login').style.display='grid';
+    showLoginFields();
+    resetChatState();
+    $('loginErr').textContent='Your session expired. Please sign in again.';
+    $('loginErr').style.display='block';
+  }
+}
+function enterRole(key){
+  document.body.classList.add('theme-landing');
+  $('app').classList.add('on');
+  buildSidebar(key);
+}
+
+/* ============================================================
+   Chat: group channel + 1:1 direct messages, its own sidebar screen
+   in every portal. Polled (every 4s, only while that screen is the
+   active one) rather than a live socket — simple, and it's the same
+   apiGet/apiPost the rest of the app already uses.
+   ============================================================ */
+let chatPollTimer=null, chatActiveView='group', chatActiveContact=null;
+let chatLastGroupAt=null;
+const chatLastDirectAt={};
+
+function renderChatScreen(){
+  startChatPolling();
+  if(chatActiveView==='group'){ if(chatLastGroupAt===null) loadGroupChat(true); }
+  else renderChatContacts();
+}
+function resetChatState(){
+  stopChatPolling();
+  chatActiveView='group'; chatActiveContact=null; chatLastGroupAt=null;
+  Object.keys(chatLastDirectAt).forEach(k=>delete chatLastDirectAt[k]);
+  $('chatGroupMessages').innerHTML='';
+  $('chatDirectMessages').innerHTML='<p class="chat-placeholder">Pick someone on the left to start a conversation.</p>';
+  document.querySelectorAll('.chat-tab').forEach(t=>t.classList.toggle('on',t.dataset.c==='group'));
+  $('chatGroupView').style.display=''; $('chatDirectView').style.display='none';
+}
+
+/* trackSeen: only direct messages carry a real readAt — a group broadcast
+   has no single "seen" state, so its own bubbles never show the tag. */
+function chatMessageHtml(msg, showSender, trackSeen){
+  const isOwn = CURRENT_USER && msg.senderEmployeeId===CURRENT_USER.employeeId;
+  const time = new Date(msg.sentAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const showUnseen = trackSeen && isOwn && !msg.readAt;
+  return `<div class="chat-msg${isOwn?' own':''}" data-sent-at="${msg.sentAt}">
+    ${showSender && !isOwn ? `<div class="chat-msg-from">${escapeHtml(msg.senderName)}</div>` : ''}
+    <div class="chat-msg-body">${escapeHtml(msg.body)}</div>
+    <div class="chat-msg-time">${time}${showUnseen ? '<span class="chat-unseen-tag">Unseen</span>' : ''}</div>
+  </div>`;
+}
+function appendChatMessages(container, msgs, showSender, trackSeen){
+  if(!msgs.length) return;
+  const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
+  msgs.forEach(m=>container.insertAdjacentHTML('beforeend', chatMessageHtml(m, showSender, trackSeen)));
+  if(wasNearBottom) container.scrollTop = container.scrollHeight;
+}
+
+async function loadGroupChat(initial){
+  try{
+    const q = initial ? '' : '?since='+encodeURIComponent(chatLastGroupAt);
+    const msgs = await apiGet('/chat/group'+q);
+    if(initial) $('chatGroupMessages').innerHTML = msgs.length ? '' : '<p class="chat-placeholder">No messages yet — say hello.</p>';
+    if(msgs.length){
+      if(initial) $('chatGroupMessages').innerHTML='';
+      chatLastGroupAt = msgs[msgs.length-1].sentAt;
+      appendChatMessages($('chatGroupMessages'), msgs, true, false);
+    }
+  }catch(e){ console.error(e); }
+}
+async function loadDirectChat(employeeId, initial){
+  try{
+    const last = chatLastDirectAt[employeeId];
+    const q = (!initial && last) ? '?since='+encodeURIComponent(last) : '';
+    const msgs = await apiGet('/chat/direct/'+encodeURIComponent(employeeId)+q);
+    if(initial) $('chatDirectMessages').innerHTML = msgs.length ? '' : '<p class="chat-placeholder">No messages yet — say hello.</p>';
+    if(msgs.length){
+      chatLastDirectAt[employeeId] = msgs[msgs.length-1].sentAt;
+      appendChatMessages($('chatDirectMessages'), msgs, false, true);
+    }
+  }catch(e){ console.error(e); }
+}
+
+/* New messages arrive via the since-delta above, but a peer reading an
+   already-rendered bubble of ours doesn't — so poll their read watermark
+   separately and drop the "Unseen" tag on anything sent at or before it. */
+async function refreshDirectSeen(employeeId){
+  try{
+    const res = await apiGet('/chat/direct/'+encodeURIComponent(employeeId)+'/seen');
+    if(!res.readAt) return;
+    const readTime = new Date(res.readAt).getTime();
+    $('chatDirectMessages').querySelectorAll('.chat-msg.own .chat-unseen-tag').forEach(tag=>{
+      const bubble = tag.closest('.chat-msg');
+      if(new Date(bubble.dataset.sentAt).getTime() <= readTime) tag.remove();
+    });
+  }catch(e){ console.error(e); }
+}
+
+function startChatPolling(){
+  if(chatPollTimer) return;
+  chatPollTimer = setInterval(()=>{
+    if(chatActiveView==='group') loadGroupChat(false);
+    else{
+      if(chatActiveContact){ loadDirectChat(chatActiveContact, false); refreshDirectSeen(chatActiveContact); }
+      renderChatContacts();
+    }
+  }, 4000);
+}
+function stopChatPolling(){
+  if(chatPollTimer){ clearInterval(chatPollTimer); chatPollTimer=null; }
+}
+
+/* Messenger-style: a contact with an unread message from them shows a bold
+   name and a dot; both clear the moment their thread is opened. */
+async function renderChatContacts(){
+  try{
+    const contacts = await apiGet('/chat/contacts');
+    $('chatContacts').innerHTML = contacts.length ? contacts.map(c=>`
+      <button class="chat-contact${chatActiveContact===c.employeeId?' on':''}${c.hasUnread?' unread':''}" onclick="openDirectChat('${c.employeeId}', this)">
+        <div class="chat-contact-name">${escapeHtml(c.fullName)}${c.hasUnread?'<span class="chat-unread-dot"></span>':''}</div>
+        <div class="chat-contact-role">${escapeHtml(c.roleLabel)}</div>
+      </button>`).join('')
+      : '<p class="chat-placeholder" style="padding:14px 8px">No one else yet.</p>';
+  }catch(e){ console.error(e); }
+}
+function openDirectChat(employeeId, btn){
+  chatActiveContact = employeeId;
+  document.querySelectorAll('.chat-contact').forEach(b=>b.classList.remove('on'));
+  if(btn){
+    btn.classList.add('on');
+    btn.classList.remove('unread');
+    const dot = btn.querySelector('.chat-unread-dot');
+    if(dot) dot.remove();
+  }
+  $('chatDirectInput').disabled=false;
+  $('chatDirectForm').querySelector('button').disabled=false;
+  delete chatLastDirectAt[employeeId];
+  loadDirectChat(employeeId, true);
+  refreshDirectSeen(employeeId);
+}
+function switchChatView(view){
+  chatActiveView = view;
+  document.querySelectorAll('.chat-tab').forEach(t=>t.classList.toggle('on', t.dataset.c===view));
+  $('chatGroupView').style.display = view==='group' ? '' : 'none';
+  $('chatDirectView').style.display = view==='direct' ? '' : 'none';
+  if(view==='group'){ if(chatLastGroupAt===null) loadGroupChat(true); }
+  else renderChatContacts();
+}
+
+document.querySelectorAll('.chat-tab').forEach(t=>t.onclick=()=>switchChatView(t.dataset.c));
+
+$('chatGroupForm').onsubmit=async(e)=>{
+  e.preventDefault();
+  const input=$('chatGroupInput');
+  const body=input.value.trim();
+  if(!body) return;
+  input.value='';
+  const res=await apiPost('/chat/group', {body});
+  if(res.ok){
+    chatLastGroupAt = res.data.sentAt;
+    if($('chatGroupMessages').querySelector('.chat-placeholder')) $('chatGroupMessages').innerHTML='';
+    appendChatMessages($('chatGroupMessages'), [res.data], true, false);
+  }
+};
+$('chatDirectForm').onsubmit=async(e)=>{
+  e.preventDefault();
+  if(!chatActiveContact) return;
+  const input=$('chatDirectInput');
+  const body=input.value.trim();
+  if(!body) return;
+  input.value='';
+  const res=await apiPost('/chat/direct/'+encodeURIComponent(chatActiveContact), {body});
+  if(res.ok){
+    chatLastDirectAt[chatActiveContact] = res.data.sentAt;
+    if($('chatDirectMessages').querySelector('.chat-placeholder')) $('chatDirectMessages').innerHTML='';
+    appendChatMessages($('chatDirectMessages'), [res.data], false, true);
+  }
+};
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+
+/* Shared by password sign-in and Google sign-in: both end with the same
+   { accessToken, user } shape from the backend. Returns an error string, or
+   null on success. */
+async function completeSignIn(data){
+  const user = data.user;
+  const roleKey = ROLE_KEY_BY_BACKEND[user.role];
+  if(!roleKey){
+    return 'Signed in, but the ' + user.roleLabel + ' role has no workspace configured yet.';
+  }
+
+  auth.token = data.accessToken;
+  CURRENT_USER = user;
+
+  try{
+    await Promise.all([loadStyleFromApi('POLO-MEN'), loadRosterFromApi()]);
+  }catch(e){
+    return 'Signed in, but the style and roster could not be loaded: ' + e.message;
+  }
+
+  $('login').style.display='none';
+  enterRole(roleKey);
+  return null;
+}
+
+function showLoginError(msg){
+  $('loginOk').style.display='none';
+  $('loginErr').textContent = msg;
+  $('loginErr').style.display='block';
+}
+
+function showLoginOk(msg){
+  $('loginErr').style.display='none';
+  $('loginOk').textContent = msg;
+  $('loginOk').style.display='block';
+}
+
+$('signin').onclick=async ()=>{
+  const btn=$('signin');
+  const identifier=$('uid').value.trim(), password=$('pw').value;
+  $('loginErr').style.display='none';
+  btn.disabled=true; btn.textContent='Signing in\u2026';
+
+  const fail = msg => {
+    showLoginError(msg);
+    btn.disabled=false; btn.textContent='Sign in';
+  };
+
+  let res;
+  try{
+    res = await apiPost('/auth/login', { identifier, password });
+  }catch(e){
+    fail('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    return;
+  }
+  if(!res.ok){
+    fail(res.status===401 ? 'Invalid email/mobile number or password.'
+                          : 'Login failed (status ' + res.status + ').');
+    return;
+  }
+
+  const err = await completeSignIn(res.data);
+  btn.disabled=false; btn.textContent='Sign in';
+  if(err) fail(err);
+};
+
+/* ============================================================
+   Panel switching: sign in / manual create-account / Google create-account
+   ============================================================ */
+const TICKET_PANELS = {
+  login:        { el:'loginFields', title:'Sign in' },
+  register:     { el:'registerPanel', title:'Create account' },
+  googleSignup: { el:'signupPanel', title:'Create account' },
+  forgot:       { el:'forgotPanel', title:'Reset password' }
+};
+
+function showPanel(which){
+  Object.values(TICKET_PANELS).forEach(p => $(p.el).style.display = 'none');
+  $(TICKET_PANELS[which].el).style.display = '';
+  $('ticketTitle').textContent = TICKET_PANELS[which].title;
+  $('loginErr').style.display = 'none';
+  $('loginOk').style.display = 'none';
+}
+
+function showLoginFields(){
+  pendingGoogleCredential = null;
+  showPanel('login');
+}
+
+$('showRegister').onclick=(e)=>{ e.preventDefault(); showPanel('register'); };
+$('registerCancel').onclick=(e)=>{ e.preventDefault(); showLoginFields(); };
+
+$('registerCreate').onclick=async ()=>{
+  const btn=$('registerCreate');
+  const email=$('regEmail').value.trim();
+  const password=$('regPassword').value;
+  const fullName=$('regName').value.trim();
+  if(!email || !password || !fullName){
+    showLoginError('Email, password and full name are required.');
+    return;
+  }
+
+  btn.disabled=true; btn.textContent='Creating…';
+  let res;
+  try{
+    res = await apiPost('/auth/signup', {
+      email, password, fullName,
+      phone: $('regPhone').value.trim(),
+      jobTitle: $('regTitle').value.trim(),
+      role: $('regRole').value
+    });
+  }catch(e){
+    showLoginError('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    btn.disabled=false; btn.textContent='Create account';
+    return;
+  }
+  btn.disabled=false; btn.textContent='Create account';
+  if(!res.ok){
+    showLoginError(res.data && res.data.message ? res.data.message : 'Could not create the account.');
+    return;
+  }
+  showLoginFields();
+  $('uid').value = email;
+  showLoginOk(res.data.message);
+};
+
+/* ============================================================
+   Forgot password: send a code (Twilio), then reset with it
+   ============================================================ */
+let forgotIdentifier = null;
+
+$('showForgot').onclick=(e)=>{
+  e.preventDefault();
+  forgotIdentifier = null;
+  $('forgotStep1').style.display='';
+  $('forgotStep2').style.display='none';
+  $('forgotIdentifier').value=$('uid').value.trim();
+  $('forgotCode').value='';
+  $('forgotNewPassword').value='';
+  showPanel('forgot');
+};
+$('forgotCancel').onclick=(e)=>{ e.preventDefault(); showLoginFields(); };
+
+$('forgotSend').onclick=async ()=>{
+  const btn=$('forgotSend');
+  const identifier=$('forgotIdentifier').value.trim();
+  if(!identifier){ showLoginError('Enter your email or mobile number.'); return; }
+
+  btn.disabled=true; btn.textContent='Sending…';
+  let res;
+  try{
+    res = await apiPost('/auth/forgot-password', { identifier });
+  }catch(e){
+    showLoginError('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    btn.disabled=false; btn.textContent='Send code';
+    return;
+  }
+  btn.disabled=false; btn.textContent='Send code';
+  if(!res.ok){
+    showLoginError(res.data && res.data.message ? res.data.message : 'Could not send the code.');
+    return;
+  }
+
+  forgotIdentifier = identifier;
+  $('forgotStep1').style.display='none';
+  $('forgotStep2').style.display='';
+  showLoginOk(res.data.message);
+};
+
+$('forgotReset').onclick=async ()=>{
+  const btn=$('forgotReset');
+  const code=$('forgotCode').value.trim();
+  const newPassword=$('forgotNewPassword').value;
+  if(!code || !newPassword){ showLoginError('Enter the code and a new password.'); return; }
+
+  btn.disabled=true; btn.textContent='Resetting…';
+  let res;
+  try{
+    res = await apiPost('/auth/reset-password', { identifier: forgotIdentifier, code, newPassword });
+  }catch(e){
+    showLoginError('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    btn.disabled=false; btn.textContent='Reset password';
+    return;
+  }
+  btn.disabled=false; btn.textContent='Reset password';
+  if(!res.ok){
+    showLoginError(res.data && res.data.message ? res.data.message : 'Could not reset the password.');
+    return;
+  }
+
+  showLoginFields();
+  $('uid').value = forgotIdentifier;
+  $('pw').value = '';
+  showLoginOk('Password updated. Sign in with your new password.');
+};
+
+/* ============================================================
+   Google sign-in + one-time sign-up
+   ============================================================ */
+let pendingGoogleCredential = null; /* held only long enough to submit the sign-up form */
+
+function showSignupPanel(email, suggestedName){
+  showPanel('googleSignup');
+  $('signupEmail').textContent=email;
+  $('signupName').value=suggestedName || '';
+  $('signupPhone').value='';
+}
+
+async function handleGoogleCredential(response){
+  $('loginErr').style.display='none';
+  let res;
+  try{
+    res = await apiPost('/auth/google', { credential: response.credential });
+  }catch(e){
+    showLoginError('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    return;
+  }
+  if(!res.ok){
+    showLoginError(res.status===401 && res.data && res.data.message
+      ? res.data.message
+      : 'Google sign-in failed (status ' + res.status + ').');
+    return;
+  }
+  if(res.data.needsSignup){
+    pendingGoogleCredential = response.credential;
+    showSignupPanel(res.data.email, res.data.suggestedName);
+    return;
+  }
+  const err = await completeSignIn(res.data.login);
+  if(err) showLoginError(err);
+}
+
+$('signupCancel').onclick=(e)=>{ e.preventDefault(); showLoginFields(); };
+
+$('signupCreate').onclick=async ()=>{
+  const btn=$('signupCreate');
+  if(!pendingGoogleCredential){
+    showLoginError('That Google sign-in expired. Please try again.');
+    showLoginFields();
+    return;
+  }
+  const fullName=$('signupName').value.trim();
+  if(!fullName){ showLoginError('Full name is required.'); return; }
+
+  btn.disabled=true; btn.textContent='Creating…';
+  let res;
+  try{
+    res = await apiPost('/auth/google/signup', {
+      credential: pendingGoogleCredential,
+      fullName,
+      phone: $('signupPhone').value.trim(),
+      jobTitle: $('signupTitle').value.trim(),
+      role: $('signupRole').value
+    });
+  }catch(e){
+    showLoginError('Cannot reach the backend. Start it with: mvn spring-boot:run');
+    btn.disabled=false; btn.textContent='Create account';
+    return;
+  }
+  const signedUpEmail = $('signupEmail').textContent;
+  btn.disabled=false; btn.textContent='Create account';
+  if(!res.ok){
+    showLoginError(res.data && res.data.message ? res.data.message : 'Could not create the account.');
+    return;
+  }
+  showLoginFields();
+  $('uid').value = signedUpEmail;
+  showLoginOk(res.data.message);
+};
+
+/* The themed Google button is in the page from the first paint (dimmed, "pending"), so it
+   is part of the landing -> sign-in transition instead of popping in afterwards. Meanwhile
+   the backend config and Google's async script load in parallel; once both are ready the
+   real button is wired in and the face brightens. If Google isn't configured or can't load
+   (offline, blocked), the button and the "or" divider are hidden again, and that is
+   remembered so they don't flash in and out on the next visit. */
+(async function initGoogleSignIn(){
+  const wrap = $('googleWrap'), divider = $('googleDivider');
+  const remember = v => { try{ localStorage.setItem('seamline.google', v); }catch(e){} };
+  const giveUp = () => { wrap.style.display = 'none'; divider.style.display = 'none'; remember('off'); };
+
+  const config = fetch(API_BASE + '/auth/config')
+    .then(r => r.ok ? r.json() : null).catch(() => null);
+  const script = new Promise(resolve => {
+    let attempts = 0;
+    const t = setInterval(() => {
+      if(window.google && google.accounts && google.accounts.id){ clearInterval(t); resolve(true); }
+      else if(++attempts > 300){ clearInterval(t); resolve(false); }   // ~15s, for slow connections
+    }, 50);
+  });
+
+  const clientId = (await config || {}).googleClientId;
+  if(!clientId){ giveUp(); return; }
+  if(!(await script)){ giveUp(); return; }
+
+  remember('on');
+  document.documentElement.classList.remove('no-google');   // recover if an earlier visit had failed
+  google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredential });
+  // the wrapper is already laid out, so its real width can be measured (GIS accepts 200–400px)
+  const w = Math.min(400, Math.max(200, Math.round(wrap.clientWidth) || 292));
+  google.accounts.id.renderButton($('googleBtn'), { theme:'outline', size:'large', shape:'pill', width:w });
+  wrap.classList.remove('pending');
+})();
+
+$('signOutBtn').onclick=()=>{
+  auth.clear();
+  CURRENT_USER = null;
+  document.body.classList.remove('theme-landing');
+  $('app').classList.remove('on');
+  $('login').style.display='grid';
+  showLoginFields();
+  resetChatState();
+};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if($('opModalOverlay').classList.contains('on')){
+      $('opModalOverlay').classList.remove('on');
+      return;
+    }
+    if($('operModalOverlay').classList.contains('on')){
+      $('operModalOverlay').classList.remove('on');
+      return;
+    }
+    auth.clear();
+    CURRENT_USER = null;
+    $('login').style.display='grid';
+    $('app').classList.remove('on');
+    resetChatState();
+  }});
+
+['team','buf','vari','spd'].forEach(id=>$(id).oninput=()=>{
+  $('vTeam').textContent=$('team').value;
+  $('vBuf').textContent=$('buf').value;
+  $('vVar').textContent=$('vari').value+'%';
+  $('vSpd').textContent=$('spd').value+'×';
+  if(id!=='spd')resetLine()});
+$('algo').onchange=resetLine;
+$('seed').onchange=resetLine;
+$('lineRun').onclick=runLine;
+$('lineReset').onclick=resetLine;
+$('dashRun').onclick=()=>renderDash(true);
+$('propSubmit').onclick=submitProposal;
+$('addLineBtn').onclick=submitNewLine;
+$('scenRun').onclick=renderScen;
+$('shiftRun').onclick=renderShift;
+
+/* ---- Export report (CSV, built client-side from what's already on screen) ---- */
+function csvCell(value){
+  const s = value===null || value===undefined ? '' : String(value);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function downloadCsv(filename, rows){
+  const csv = rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function today(){ return new Date().toISOString().slice(0,10); }
+
+function exportDashboardReport(){
+  if(!DASH){ alert('Nothing to export yet — load the dashboard first.'); return; }
+  const d = DASH;
+  const rows = [
+    ['Seamline dashboard report'],
+    ['Line', d.line.code],
+    ['Style', d.style.name],
+    ['Algorithm', d.run.algorithmLabel],
+    ['Team size', d.run.teamSize],
+    ['Stations', d.run.stationCount],
+    ['Buffer per station', d.run.bufferPerStation],
+    ['Seed', d.run.seed],
+    ['Run at', d.run.runAt],
+    [],
+    ['KPI','Value'],
+    ['Pieces this shift', d.kpis.piecesThisShift],
+    ['Target pieces', d.kpis.targetPieces],
+    ['Output rate (pcs/hr)', d.kpis.outputRatePerHour],
+    ['Line efficiency (%)', d.kpis.lineEfficiency],
+    ['Balance loss (%)', d.kpis.balanceLoss],
+    ['Cycle time (min/pc)', d.kpis.cycleTimeMinutes],
+    [],
+    ['Alert', d.alert.title],
+    ['Detail', d.alert.detail],
+    [],
+    ['Station','Machine','Operator','Operations','Min/pc','Utilisation %','Blocked min','Starved min','Pieces done','Status']
+  ];
+  d.stations.forEach(s=>rows.push([s.station, s.machineLabel, s.operator, s.operations,
+    s.minutesPerPiece, s.utilisation, s.blockedMinutes, s.starvedMinutes, s.piecesDone, s.statusLabel]));
+  downloadCsv(`seamline-dashboard-${d.line.code}-${today()}.csv`, rows);
+}
+
+function exportExecReport(){
+  if(!EXEC_LINES){ alert('Nothing to export yet — open Executive summary first.'); return; }
+  const statusLabel = {ok:'Healthy', mid:'Watch', bad:'At risk'};
+  const rows = [
+    ['Seamline executive summary — Unit 2'],
+    ['Generated', new Date().toISOString()],
+    [],
+    ['Line','Style','Efficiency %','Output (pcs)','Target (pcs)','Status']
+  ];
+  EXEC_LINES.forEach(l=>rows.push([l.id, l.style, l.eff, l.out, l.target, statusLabel[l.status]||l.status]));
+  downloadCsv(`seamline-executive-summary-${today()}.csv`, rows);
+}
+
+$('dashExport').onclick = exportDashboardReport;
+$('execExport').onclick = exportExecReport;
+
+/* ---- Industrial Engineer: Add operation / Import from CSV ---- */
+const STYLE_CODE='POLO-MEN';
+
+function apiErrorMessage(res, fallback){
+  if(!res.data) return fallback;
+  const fieldErrors=res.data.fieldErrors;
+  if(fieldErrors){ const first=Object.values(fieldErrors)[0]; if(first) return first; }
+  return res.data.message || fallback;
+}
+
+$('addOpBtn').onclick=()=>{
+  $('opErr').style.display='none';
+  $('opCode').value=''; $('opName').value=''; $('opSmv').value='';
+  $('opGrade').value=3; $('opPre').value=''; $('opMachine').value='PLAIN';
+  $('opModalOverlay').classList.add('on');
+  $('opCode').focus();
+};
+$('opCancel').onclick=()=>$('opModalOverlay').classList.remove('on');
+$('opModalOverlay').addEventListener('click',e=>{
+  if(e.target.id==='opModalOverlay') $('opModalOverlay').classList.remove('on');
+});
+$('opSubmit').onclick=async ()=>{
+  const body={
+    code: $('opCode').value.trim(),
+    name: $('opName').value.trim(),
+    smv: parseFloat($('opSmv').value),
+    machine: $('opMachine').value,
+    minGrade: parseInt($('opGrade').value, 10),
+    predecessors: $('opPre').value.split(',').map(s=>s.trim()).filter(Boolean)
+  };
+  const btn=$('opSubmit');
+  btn.disabled=true; btn.textContent='Adding…';
+  const res=await apiPost('/styles/'+STYLE_CODE+'/operations', body);
+  btn.disabled=false; btn.textContent='Add operation';
+  if(!res.ok){
+    $('opErr').textContent=apiErrorMessage(res, 'Could not add the operation.');
+    $('opErr').style.display='block';
+    return;
+  }
+  $('opModalOverlay').classList.remove('on');
+  await loadStyleFromApi(STYLE_CODE);
+  renderStyle();
+};
+
+$('importCsvBtn').onclick=()=>$('csvFile').click();
+$('csvFile').onchange=async (e)=>{
+  const file=e.target.files[0];
+  e.target.value='';
+  if(!file) return;
+  const text=await file.text();
+  const res=await apiPost('/styles/'+STYLE_CODE+'/operations/import', {csv:text});
+  if(!res.ok){
+    alert(apiErrorMessage(res, 'Could not import the CSV.'));
+    return;
+  }
+  await loadStyleFromApi(STYLE_CODE);
+  renderStyle();
+};
+
+/* ---- Industrial Engineer: Add operator / Import roster ---- */
+function parseSkillsInput(text){
+  const skills={};
+  text.split(/[,;]/).map(s=>s.trim()).filter(Boolean).forEach(part=>{
+    const bits=part.split(':');
+    const machine=(bits[0]||'').trim(), eff=(bits[1]||'').trim();
+    if(machine && eff) skills[machine.toUpperCase().replace(/ /g,'_')]=parseFloat(eff);
+  });
+  return skills;
+}
+
+$('addOperatorBtn').onclick=()=>{
+  $('operErr').style.display='none';
+  $('operCode').value=''; $('operName').value=''; $('operGrade').value=3;
+  $('operDefEff').value=''; $('operSkills').value='';
+  $('operModalOverlay').classList.add('on');
+  $('operCode').focus();
+};
+$('operCancel').onclick=()=>$('operModalOverlay').classList.remove('on');
+$('operModalOverlay').addEventListener('click',e=>{
+  if(e.target.id==='operModalOverlay') $('operModalOverlay').classList.remove('on');
+});
+$('operSubmit').onclick=async ()=>{
+  const body={
+    code: $('operCode').value.trim(),
+    name: $('operName').value.trim(),
+    grade: parseInt($('operGrade').value, 10),
+    defaultEfficiency: parseFloat($('operDefEff').value),
+    skills: parseSkillsInput($('operSkills').value)
+  };
+  const btn=$('operSubmit');
+  btn.disabled=true; btn.textContent='Adding…';
+  const res=await apiPost('/operators', body);
+  btn.disabled=false; btn.textContent='Add operator';
+  if(!res.ok){
+    $('operErr').textContent=apiErrorMessage(res, 'Could not add the operator.');
+    $('operErr').style.display='block';
+    return;
+  }
+  $('operModalOverlay').classList.remove('on');
+  await loadRosterFromApi();
+  renderOps();
+};
+
+$('importRosterBtn').onclick=()=>$('rosterCsvFile').click();
+$('rosterCsvFile').onchange=async (e)=>{
+  const file=e.target.files[0];
+  e.target.value='';
+  if(!file) return;
+  const text=await file.text();
+  const res=await apiPost('/operators/import', {csv:text});
+  if(!res.ok){
+    alert(apiErrorMessage(res, 'Could not import the roster.'));
+    return;
+  }
+  await loadRosterFromApi();
+  renderOps();
+};
+
+window.addEventListener('resize',()=>{
+  const activeBtn=document.querySelector('#nav button.on');
+  if(activeBtn&&RENDER[activeBtn.dataset.s])RENDER[activeBtn.dataset.s]();
+});
+</script>
+</body>
+</html>

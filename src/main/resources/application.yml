@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: seamline
+  datasource:
+    url: jdbc:h2:mem:seamline;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+
+seamline:
+  jwt:
+    # 32+ characters. Override with SEAMLINE_JWT_SECRET in any real deployment.
+    secret: ${SEAMLINE_JWT_SECRET:seamline-dev-secret-key-change-me-please-0123456789}
+    expiration-minutes: 480
+  cors:
+    # Origin patterns allowed to call the API. "*" is fine for the course demo
+    # (we use Bearer tokens, not cookies). Narrow it before any real deployment.
+    allowed-origins:
+      - "*"
+  seed:
+    enabled: true
+    demo-password: seamline123
+  google:
+    # OAuth 2.0 Web client ID from https://console.cloud.google.com/apis/credentials
+    # (Authorized JavaScript origins must include this app's URL). The ID is public
+    # (Google puts it in every page that shows the button), so the project's own ID
+    # is the default here; SEAMLINE_GOOGLE_CLIENT_ID still overrides it.
+    client-id: ${SEAMLINE_GOOGLE_CLIENT_ID:123526705095-rb2u4svgalklgqh3nfop3b89b0o2t1hj.apps.googleusercontent.com}
+  mail:
+    # SMTP account used to email the "forgot password" one-time code — Gmail works
+    # free with no card: turn on 2-Step Verification, then create an "app password"
+    # at myaccount.google.com/apppasswords and use that (not your normal password).
+    # Leave username/password unset to disable "forgot password" (it fails clearly
+    # instead of pretending to work).
+    host: ${SEAMLINE_MAIL_HOST:smtp.gmail.com}
+    port: ${SEAMLINE_MAIL_PORT:587}
+    username: ${SEAMLINE_MAIL_USERNAME:}
+    password: ${SEAMLINE_MAIL_PASSWORD:}
+
+logging:
+  level:
+    org.hibernate.SQL: warn

@@ -1,0 +1,8 @@
+code,name,smv,machine,minGrade,predecessors
+PK1,Pocket mark,0.20,Manual,1,C01
+PK2,Pocket hem,0.40,Plain,3,PK1
+PK3,Pocket press,0.25,Iron,2,PK2
+PK4,Pocket attach,0.70,Plain,4,PK3;S02
+LB1,Care label attach,0.30,Plain,2,S03
+QC1,Final inspection,0.45,Manual,2,I01;LB1;PK4
+FP1,Fold and pack,0.35,Manual,1,QC1
